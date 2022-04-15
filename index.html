@@ -17,10 +17,17 @@
 <img src=start.png id=start hidden>
 <img src=title.png id=title hidden>
 <img src=l1top.png id=l1top hidden>
+<img src=tooraw.png id=tooraw hidden>
+<img src=burnt.png id=burnt hidden>
+<img src=ok.png id=ok hidden>
+<img src=hand.png id=hand hidden>
 <body style="overflow:hidden;font-family:pangolin">.
 <canvas id=a style="position:fixed;top:50%;left:50%;transform:translateX(-50%)translateY(-50%);cursor:pointer;width:100vmin;height=100vmin;">
 
 <script>
+state = 0;
+white = 0;
+
 onload = () => {
   W = a.width = 600;
   H = a.height = 600;
@@ -30,6 +37,8 @@ onload = () => {
 }
 
 draw = () => {
+
+console.log(white)
 
   a.width ^= 0;
 
@@ -51,7 +60,7 @@ draw = () => {
   }
   
   // Levels
-  else if(state == 2){
+  else if(state == 2 && !white){
     if(level == 1){
       c.drawImage(l1top, W/2 - 250, H/2 - 260);
       c.drawImage(window["gas" + anim], W/2 - 250, H/2 - 80);
@@ -67,27 +76,39 @@ draw = () => {
       else {
         c.drawImage(pan1, W/2 - 250, H/2 - 20);
         c.drawImage(fish1, W/2 - 30, H/2 + 70);
-        c.globalAlpha = fry / 100;
+        c.globalAlpha = fry / 200;
         c.drawImage(fish2, W/2 - 30, H/2 + 70);
         c.globalAlpha = 1;
         c.drawImage(pan2, W/2 - 250, H/2 - 20);
         c.drawImage(window["smoke" + anim], W/2 - 300, H/2 - 100);
       }
       
-      if(md){
+      if(md && !showscore){
         timer = (new Date() - timer0);
-        console.log(timer);
         if(timer < 3000){
           c.font = '50px pangolin';
           c.globalAlpha = Math.max(((1 / (timer / 1000)) - 0.3), 0);
-          c.fillText((timer/1000).toFixed(1) + "s", 150, 250);
+          c.fillText((timer/1000).toFixed(2) + "s", 150, 250);
           c.globalAlpha = 1;
         }
       }
       
-      if(!md && released){
+      if(!md && released && !showscore){
         c.font = '50px pangolin';
-        c.fillText((timer/1000).toFixed(1) + "s", 250, 250);
+        c.fillText((timer/1000).toFixed(2) + "s", 250, 250);
+      }
+      
+      if(showscore){
+        c.drawImage(hand, W/2 + 200, H/2 - 100);
+        if(timer < 9.5 * 1000){
+          c.drawImage(tooraw, W/2 - 100, H/2 - 100);
+        }
+        if(timer >= 9.5 * 1000 && timer <= 10.5 * 1000){
+          c.drawImage(ok, W/2 - 100, H/2 - 100);
+        }
+        if(timer > 10.5 * 1000){
+          c.drawImage(burnt, W/2 - 100, H/2 - 100);
+        }
       }
     }
   }
@@ -95,22 +116,26 @@ draw = () => {
 
 onclick = (e) => {
 
-  X = e.pageX;
-  Y = e.pageY;
-  
-  // Title
-  if(state == 0){
-    state = 1;
-    draw();
-  }
-  
-  // Rules
-  else if(state == 1){
-    state = 2;
-    level = 1;
-    fry = 0;
-    released = 0;
-    draw();
+  if(!showscore){
+    
+    X = e.pageX;
+    Y = e.pageY;
+    
+    // Title
+    if(state == 0){
+      state = 1;
+      draw();
+    }
+    
+    // Rules
+    else if(state == 1){
+      state = 2;
+      level = 1;
+      fry = 0;
+      released = 0;
+      showscore = 0;
+      draw();
+    }
   }
 }
 
@@ -118,20 +143,44 @@ md = 0;
 mdtimeout = 0;
 timer0 = 0;
 timer = 0;
+showscore = 0;
 
 onmousedown = () => {
- mdtimeout = setTimeout(()=>{md=1; timer0 = new Date(); }, 34);
- 
+ if(!showscore)
+   mdtimeout = setTimeout(()=>{
+     md=1;
+     timer0 = new Date();
+   }, 34);
 }
 
 
 onmouseup = () => {
- clearTimeout(mdtimeout);
- if(md) released = 1;
- timer = (new Date()) - timer0;
- console.log(+new Date())
- md=0;
- draw();
+ if(!showscore){
+   clearTimeout(mdtimeout);
+   if(md) released = 1;
+   timer = (new Date()) - timer0;
+   md=0;
+   draw();
+   if(state == 2){
+    setTimeout(()=>{
+      showscore=1;
+      setTimeout(()=>{
+        white = 1;
+        draw();
+      }, 1700);
+      
+      setTimeout(()=>{
+        state = 2;
+        level = 1;
+        fry = 0;
+        released = 0;
+        showscore = 0;
+        white = 0;
+        draw();
+      }, 2000);
+    }, 1000);
+   }
+ }
 }
 
 anim = 1;
@@ -146,7 +195,7 @@ setInterval(()=>{
     fry ++;
     draw();
   }
-},100);
+},33);
 </script>
 
 <style>
