@@ -1,0 +1,157 @@
+<!doctype html> 
+<img src=bonus.png id=bonus hidden>
+<img src=coil.png id=coil hidden>
+<img src=fish1.png id=fish1 hidden>
+<img src=fish2.png id=fish2 hidden>
+<img src=gas1.png id=gas1 hidden>
+<img src=gas2.png id=gas2 hidden>
+<img src=ipfs.png id=ipfs hidden>
+<img src=mpl.png id=mpl hidden>
+<img src=near.png id=near hidden>
+<img src=pan2.png id=pan2 hidden>
+<img src=pan1.png id=pan1 hidden>
+<img src=play.png id=play hidden>
+<img src=rules.png id=rules hidden>
+<img src=smoke1.png id=smoke1 hidden>
+<img src=smoke2.png id=smoke2 hidden>
+<img src=start.png id=start hidden>
+<img src=title.png id=title hidden>
+<img src=l1top.png id=l1top hidden>
+<body style="overflow:hidden;font-family:pangolin">.
+<canvas id=a style="position:fixed;top:50%;left:50%;transform:translateX(-50%)translateY(-50%);cursor:pointer;width:100vmin;height=100vmin;">
+
+<script>
+onload = () => {
+  W = a.width = 600;
+  H = a.height = 600;
+  c = a.getContext("2d");
+  state = 0; // title
+  draw();
+}
+
+draw = () => {
+
+  a.width ^= 0;
+
+  // Title
+  if(state == 0){
+    c.drawImage(title, W/2 - 300, H/2 - 270);
+    c.drawImage(play, W/2 - 100, H/2 + 130);
+  }
+  
+  // Rules
+  else if(state == 1){
+    c.drawImage(rules, W/2 - 250, H/2 - 300);
+    c.drawImage(bonus, W/2 - 100, H/2 - 0);
+    c.drawImage(coil, W/2 - 230, H/2 + 60);
+    c.drawImage(near, W/2 - 120, H/2 + 60);
+    c.drawImage(ipfs, W/2 + 30, H/2 + 60);
+    c.drawImage(mpl, W/2 + 140, H/2 + 60);
+    c.drawImage(start, W/2 - 100, H/2 + 170);
+  }
+  
+  // Levels
+  else if(state == 2){
+    if(level == 1){
+      c.drawImage(l1top, W/2 - 250, H/2 - 260);
+      c.drawImage(window["gas" + anim], W/2 - 250, H/2 - 80);
+      
+      if(md == 0){
+        c.drawImage(pan1, W/2 - 250, H/2 - 80);
+        c.drawImage(fish1, W/2 - 30, H/2 + 10);
+        c.globalAlpha = fry / 100;
+        c.drawImage(fish2, W/2 - 30, H/2 + 10);
+        c.globalAlpha = 1;
+        c.drawImage(pan2, W/2 - 250, H/2 - 80);
+      }
+      else {
+        c.drawImage(pan1, W/2 - 250, H/2 - 20);
+        c.drawImage(fish1, W/2 - 30, H/2 + 70);
+        c.globalAlpha = fry / 100;
+        c.drawImage(fish2, W/2 - 30, H/2 + 70);
+        c.globalAlpha = 1;
+        c.drawImage(pan2, W/2 - 250, H/2 - 20);
+        c.drawImage(window["smoke" + anim], W/2 - 300, H/2 - 100);
+      }
+      
+      if(md){
+        timer = (new Date() - timer0);
+        console.log(timer);
+        if(timer < 3000){
+          c.font = '50px pangolin';
+          c.globalAlpha = Math.max(((1 / (timer / 1000)) - 0.3), 0);
+          c.fillText((timer/1000).toFixed(1) + "s", 150, 250);
+          c.globalAlpha = 1;
+        }
+      }
+      
+      if(!md && released){
+        c.font = '50px pangolin';
+        c.fillText((timer/1000).toFixed(1) + "s", 250, 250);
+      }
+    }
+  }
+}
+
+onclick = (e) => {
+
+  X = e.pageX;
+  Y = e.pageY;
+  
+  // Title
+  if(state == 0){
+    state = 1;
+    draw();
+  }
+  
+  // Rules
+  else if(state == 1){
+    state = 2;
+    level = 1;
+    fry = 0;
+    released = 0;
+    draw();
+  }
+}
+
+md = 0;
+mdtimeout = 0;
+timer0 = 0;
+timer = 0;
+
+onmousedown = () => {
+ mdtimeout = setTimeout(()=>{md=1; timer0 = new Date(); }, 34);
+ 
+}
+
+
+onmouseup = () => {
+ clearTimeout(mdtimeout);
+ if(md) released = 1;
+ timer = (new Date()) - timer0;
+ console.log(+new Date())
+ md=0;
+ draw();
+}
+
+anim = 1;
+setInterval(() => {
+  anim = 3 - anim;
+  draw();
+}, 250);
+
+fry = 0;
+setInterval(()=>{
+  if(state == 2 && md){
+    fry ++;
+    draw();
+  }
+},100);
+</script>
+
+<style>
+@font-face {
+  font-family: pangolin;
+  src: url(pangolin.ttf);
+}
+</style>
