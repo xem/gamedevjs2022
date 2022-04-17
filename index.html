@@ -1,8 +1,6 @@
 <!doctype html> 
 <img src=bonus.png id=bonus hidden>
 <img src=coil.png id=coil hidden>
-<img src=fish1.png id=fish1 hidden>
-<img src=fish2.png id=fish2 hidden>
 <img src=gas1.png id=gas1 hidden>
 <img src=gas2.png id=gas2 hidden>
 <img src=ipfs.png id=ipfs hidden>
@@ -11,22 +9,36 @@
 <img src=pan2.png id=pan2 hidden>
 <img src=pan1.png id=pan1 hidden>
 <img src=play.png id=play hidden>
-<img src=rules.png id=rules hidden>
 <img src=smoke1.png id=smoke1 hidden>
 <img src=smoke2.png id=smoke2 hidden>
 <img src=start.png id=start hidden>
 <img src=title.png id=title hidden>
-<img src=l1top.png id=l1top hidden>
 <img src=tooraw.png id=tooraw hidden>
 <img src=burnt.png id=burnt hidden>
 <img src=ok.png id=ok hidden>
 <img src=hand.png id=hand hidden>
+<img src=rules1.png id=rules1 hidden>
+<img src=rules2.png id=rules2 hidden>
+<img src=rules3.png id=rules3 hidden>
+<img src=rules4.png id=rules4 hidden>
+<img src=rules5.png id=rules5 hidden>
+<img src=food1.png id=food1 hidden>
+<img src=food2.png id=food2 hidden>
+<img src=food3.png id=food3 hidden>
+<img src=food4.png id=food4 hidden>
+<img src=food5.png id=food5 hidden>
+<img src=foodend1.png id=foodend1 hidden>
+<img src=foodend2.png id=foodend2 hidden>
+<img src=foodend3.png id=foodend3 hidden>
+<img src=foodend4.png id=foodend4 hidden>
+<img src=foodend5.png id=foodend5 hidden>
 <body style="overflow:hidden;font-family:pangolin">.
 <canvas id=a style="position:fixed;top:50%;left:50%;transform:translateX(-50%)translateY(-50%);cursor:pointer;width:100vmin;height=100vmin;">
 
 <script>
 state = 0;
 white = 0;
+win = 0;
 
 onload = () => {
   W = a.width = 600;
@@ -48,36 +60,35 @@ console.log(white)
     c.drawImage(play, W/2 - 100, H/2 + 130);
   }
   
-  // Rules
+  // bonus
   else if(state == 1){
-    c.drawImage(rules, W/2 - 250, H/2 - 300);
-    c.drawImage(bonus, W/2 - 100, H/2 - 0);
-    c.drawImage(coil, W/2 - 230, H/2 + 60);
-    c.drawImage(near, W/2 - 120, H/2 + 60);
-    c.drawImage(ipfs, W/2 + 30, H/2 + 60);
-    c.drawImage(mpl, W/2 + 140, H/2 + 60);
-    c.drawImage(start, W/2 - 100, H/2 + 170);
+    c.drawImage(bonus, W/2 - 100, H/2 - 100);
+    c.drawImage(coil, W/2 - 230, H/2 - 40);
+    c.drawImage(near, W/2 - 120, H/2 - 40);
+    c.drawImage(ipfs, W/2 + 30, H/2 - 40);
+    c.drawImage(mpl, W/2 + 140, H/2  - 40);
+    c.drawImage(start, W/2 - 100, H/2 + 50);
   }
   
   // Levels
   else if(state == 2 && !white){
-    if(level == 1){
-      c.drawImage(l1top, W/2 - 250, H/2 - 260);
+    //if(level == 1){
+      c.drawImage(window["rules" + level], W/2 - 250, H/2 - 260);
       c.drawImage(window["gas" + anim], W/2 - 250, H/2 - 80);
       
       if(md == 0){
         c.drawImage(pan1, W/2 - 250, H/2 - 80);
-        c.drawImage(fish1, W/2 - 30, H/2 + 10);
+        c.drawImage(window["food" + level], W/2 - 30, H/2 + 10);
         c.globalAlpha = fry / 100;
-        c.drawImage(fish2, W/2 - 30, H/2 + 10);
+        c.drawImage(window["foodend" + level], W/2 - 30, H/2 + 10);
         c.globalAlpha = 1;
         c.drawImage(pan2, W/2 - 250, H/2 - 80);
       }
       else {
         c.drawImage(pan1, W/2 - 250, H/2 - 20);
-        c.drawImage(fish1, W/2 - 30, H/2 + 70);
+        c.drawImage(window["food" + level], W/2 - 30, H/2 + 70);
         c.globalAlpha = fry / 200;
-        c.drawImage(fish2, W/2 - 30, H/2 + 70);
+        c.drawImage(window["foodend" + level], W/2 - 30, H/2 + 70);
         c.globalAlpha = 1;
         c.drawImage(pan2, W/2 - 250, H/2 - 20);
         c.drawImage(window["smoke" + anim], W/2 - 300, H/2 - 100);
@@ -100,17 +111,20 @@ console.log(white)
       
       if(showscore){
         c.drawImage(hand, W/2 + 200, H/2 - 100);
-        if(timer < 9.5 * 1000){
+        if(timer < 9 * 1000){
           c.drawImage(tooraw, W/2 - 100, H/2 - 100);
+          win = 0;
         }
-        if(timer >= 9.5 * 1000 && timer <= 10.5 * 1000){
+        if(timer >= 9 * 1000 && timer <= 10 * 1000){
           c.drawImage(ok, W/2 - 100, H/2 - 100);
+          win = 1;
         }
-        if(timer > 10.5 * 1000){
+        if(timer > 10 * 1000){
           c.drawImage(burnt, W/2 - 100, H/2 - 100);
+          win = 0;
         }
       }
-    }
+    //}
   }
 }
 
@@ -130,7 +144,7 @@ onclick = (e) => {
     // Rules
     else if(state == 1){
       state = 2;
-      level = 1;
+      level = 2;
       fry = 0;
       released = 0;
       showscore = 0;
@@ -171,7 +185,7 @@ onmouseup = () => {
       
       setTimeout(()=>{
         state = 2;
-        level = 1;
+        if(win == 1) level ++;
         fry = 0;
         released = 0;
         showscore = 0;
