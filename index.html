@@ -13,8 +13,9 @@
 <img src=smoke2.png id=smoke2 hidden>
 <img src=start.png id=start hidden>
 <img src=title.png id=title hidden>
-<img src=tooraw.png id=tooraw hidden>
-<img src=burnt.png id=burnt hidden>
+<img src=tooraw.png id=toorawimg hidden>
+<img src=toorawburnt.png id=toorawburntimg hidden>
+<img src=burnt.png id=burntimg hidden>
 <img src=ok.png id=ok hidden>
 <img src=hand.png id=hand hidden>
 <img src=rules1.png id=rules1 hidden>
@@ -39,6 +40,37 @@
 state = 0;
 white = 0;
 win = 0;
+level = 1;
+fry = 0;
+released = 0;
+showtime = 0;
+showscore = 0;
+step = 0;
+md = 0;
+mdtimeout = 0;
+timer0 = 0;
+timer = 0;
+ready = 0;
+tooraw = 0;
+burnt = 0;
+
+levels = [
+  , // 0: no
+  [{min: 9, max: 10}], // 1: 9-10s
+  [{min: 5, max: 6},{min: 5, max: 6}], // 2: 5-6s + 5-6s
+
+];
+
+scores = [
+  , // 0: no
+  [], // 1
+  [], // 2
+  [], // 3
+  [], // 4
+  [], // 5
+  [], // 6
+  
+];
 
 onload = () => {
   W = a.width = 600;
@@ -49,8 +81,6 @@ onload = () => {
 }
 
 draw = () => {
-
-console.log(white)
 
   a.width ^= 0;
 
@@ -72,59 +102,110 @@ console.log(white)
   
   // Levels
   else if(state == 2 && !white){
-    //if(level == 1){
-      c.drawImage(window["rules" + level], W/2 - 250, H/2 - 260);
-      c.drawImage(window["gas" + anim], W/2 - 250, H/2 - 80);
-      
-      if(md == 0){
-        c.drawImage(pan1, W/2 - 250, H/2 - 80);
-        c.drawImage(window["food" + level], W/2 - 30, H/2 + 10);
-        c.globalAlpha = fry / 100;
-        c.drawImage(window["foodend" + level], W/2 - 30, H/2 + 10);
-        c.globalAlpha = 1;
-        c.drawImage(pan2, W/2 - 250, H/2 - 80);
-      }
-      else {
-        c.drawImage(pan1, W/2 - 250, H/2 - 20);
-        c.drawImage(window["food" + level], W/2 - 30, H/2 + 70);
-        c.globalAlpha = fry / 200;
-        c.drawImage(window["foodend" + level], W/2 - 30, H/2 + 70);
-        c.globalAlpha = 1;
-        c.drawImage(pan2, W/2 - 250, H/2 - 20);
-        c.drawImage(window["smoke" + anim], W/2 - 300, H/2 - 100);
-      }
-      
-      if(md && !showscore){
-        timer = (new Date() - timer0);
-        if(timer < 3000){
-          c.font = '50px pangolin';
-          c.globalAlpha = Math.max(((1 / (timer / 1000)) - 0.3), 0);
-          c.fillText((timer/1000).toFixed(2) + "s", 150, 250);
-          c.globalAlpha = 1;
-        }
-      }
-      
-      if(!md && released && !showscore){
+    c.drawImage(window["rules" + level], W/2 - 250, H/2 - 260);
+    c.drawImage(window["gas" + anim], W/2 - 250, H/2 - 80);
+    
+    // Idle
+    if(md == 0 && !flip){
+      c.drawImage(pan1, W/2 - 250, H/2 - 80);
+      c.drawImage(window["food" + level], W/2 - 30, H/2 + 10);
+      c.globalAlpha = fry / 100;
+      c.drawImage(window["foodend" + level], W/2 - 30, H/2 + 10);
+      c.globalAlpha = 1;
+      c.drawImage(pan2, W/2 - 250, H/2 - 80);
+    }
+    
+    // Pressed
+    if(md && !flip) {
+      c.drawImage(pan1, W/2 - 250, H/2 - 20);
+      c.drawImage(window["food" + level], W/2 - 30, H/2 + 70);
+      c.globalAlpha = fry / 200;
+      c.drawImage(window["foodend" + level], W/2 - 30, H/2 + 70);
+      c.globalAlpha = 1;
+      c.drawImage(pan2, W/2 - 250, H/2 - 20);
+      c.drawImage(window["smoke" + anim], W/2 - 300, H/2 - 100);
+    }
+    
+    // 1....2.....3
+    if(md && !showscore && !flip && step == 0){
+      timer = (new Date() - timer0);
+      if(timer < 3000){
         c.font = '50px pangolin';
-        c.fillText((timer/1000).toFixed(2) + "s", 250, 250);
+        c.globalAlpha = Math.max(((1 / (timer / 1000)) - 0.3), 0);
+        c.fillText((timer/1000).toFixed(2) + "s", 150, 250);
+        c.globalAlpha = 1;
+      }
+    }
+    
+    // Show time 
+    if(showtime && !showscore && !flip){
+      str = "";
+      if(scores[level].length == 1) c.font = '50px pangolin';
+      if(scores[level].length == 2) c.font = '40px pangolin';
+      if(scores[level].length > 2) c.font = '30px pangolin';
+      c.textAlign = 'center';
+      for(i in scores[level]){
+        str += (+i ? " + " : "") + (scores[level][i]/1000).toFixed(2) + "s"
+      }
+      c.fillText(str, W/2, 250);
+      c.textAlign = 'start';
+    }
+    
+    // Show score
+    if(showscore && !flip){
+    
+      tooraw = 0;
+      burnt = 0;
+    
+      for(i in scores[level]){
+        if(scores[level][i] < levels[level][i].min * 1000){
+          tooraw = 1;
+          win = 0;
+        }
+        else if(scores[level][i] >= levels[level][i].min * 1000 && scores[level][i] <= levels[level][i].max * 1000){
+        }
+        else if(scores[level][i]  > levels[level][i].max * 1000){
+          burnt = 1;
+          win = 0;
+        }
       }
       
-      if(showscore){
-        c.drawImage(hand, W/2 + 200, H/2 - 100);
-        if(timer < 9 * 1000){
-          c.drawImage(tooraw, W/2 - 100, H/2 - 100);
-          win = 0;
-        }
-        if(timer >= 9 * 1000 && timer <= 10 * 1000){
-          c.drawImage(ok, W/2 - 100, H/2 - 100);
-          win = 1;
-        }
-        if(timer > 10 * 1000){
-          c.drawImage(burnt, W/2 - 100, H/2 - 100);
-          win = 0;
-        }
+      if(tooraw && burnt) {
+        console.log("trb");
+        c.drawImage(toorawburntimg, W/2 - 200, H/2 - 100);
       }
-    //}
+      else if(tooraw && !burnt){
+        console.log("tr");
+        c.drawImage(toorawimg, W/2 - 100, H/2 - 100);
+      }
+      else if(burnt && !tooraw){
+        console.log("b");
+        c.drawImage(burntimg, W/2 - 100, H/2 - 100);
+      }
+      else if(!tooraw && !burnt) {
+        console.log("win");
+        win = 1;
+        c.drawImage(ok, W/2 - 100, H/2 - 100);
+      }
+      
+      
+      c.drawImage(hand, W/2 + 200, H/2 - 100);
+    }
+    
+    // flip
+    if(!md && flip){
+      c.drawImage(pan1, W/2 - 250, H/2 - 60);
+      c.save();
+      c.translate(W/2 + 110, H/2 - 30);
+      c.rotate((flip-20+120)/6 + 30);
+      c.drawImage(window["food" + level], 0, 0);
+      c.globalAlpha = fry / 100;
+      c.drawImage(window["foodend" + level], 0, 0);
+      c.globalAlpha = 1;
+      c.restore();
+      c.drawImage(pan2, W/2 - 250, H/2 - 60);
+    }
+    
   }
 }
 
@@ -137,64 +218,75 @@ onclick = (e) => {
     
     // Title
     if(state == 0){
-      state = 1;
-      draw();
-    }
-    
-    // Rules
-    else if(state == 1){
       state = 2;
-      level = 2;
       fry = 0;
       released = 0;
       showscore = 0;
+      step = 0;
       draw();
+      md = 0;
+      ready = 0;
+      setTimeout(()=>{ready = 1}, 200);
     }
   }
 }
 
-md = 0;
-mdtimeout = 0;
-timer0 = 0;
-timer = 0;
-showscore = 0;
+
 
 onmousedown = () => {
- if(!showscore)
+ if(ready && !showscore && !flip && step < levels[level].length)
    mdtimeout = setTimeout(()=>{
-     md=1;
+     md = 1;
      timer0 = new Date();
    }, 34);
 }
 
 
 onmouseup = () => {
- if(!showscore){
-   clearTimeout(mdtimeout);
-   if(md) released = 1;
-   timer = (new Date()) - timer0;
-   md=0;
-   draw();
-   if(state == 2){
-    setTimeout(()=>{
-      showscore=1;
+  if(state == 2 && !showscore && !flip && step < levels[level].length){
+    clearTimeout(mdtimeout);
+    if(md) released = 1;
+    timer = (new Date()) - timer0;
+    scores[level][step] = timer;
+    md = 0;
+    draw();
+    step++;
+    
+    // Flip
+    if(state == 2 && step < levels[level].length){
+      flip = 20;
+    }
+    
+    // Score
+    if(state == 2 && step == levels[level].length){
+      showtime = 1;
+      draw();
+      setTimeout(()=>{
+        showscore = 1;
+        draw();
+      }, 1000 + scores[level].length * 500);
+      
       setTimeout(()=>{
         white = 1;
         draw();
-      }, 1700);
+      }, 1000 + scores[level].length * 500 + 2000);
       
       setTimeout(()=>{
         state = 2;
         if(win == 1) level ++;
         fry = 0;
         released = 0;
+        showtime = 0;
         showscore = 0;
         white = 0;
+        md = 0;
+        step = 0;
+        ready = 0;
+        setTimeout(()=>{ready = 1}, 200);
         draw();
-      }, 2000);
-    }, 1000);
-   }
- }
+      }, 1000 + scores[level].length * 500 + 2500);
+    }
+  }
 }
 
 anim = 1;
@@ -203,10 +295,20 @@ setInterval(() => {
   draw();
 }, 250);
 
+
 fry = 0;
 setInterval(()=>{
-  if(state == 2 && md){
+  if(state == 2 && md && !flip){
     fry ++;
+    draw();
+  }
+},33);
+
+flip = 0;
+setInterval(()=>{
+  if(flip > 0){
+    flip--;
+    if(flip == 0){ fry = 5; }
     draw();
   }
 },33);
