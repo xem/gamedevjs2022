@@ -1,4 +1,6 @@
-<!doctype html> 
+<!doctype html>
+<meta name="viewport" content="width=device-width, initial-scale=0.5" />
+<title>IT'S TOO RAW!</title>
 <img src=bonus.png id=bonus hidden>
 <img src=coil.png id=coil hidden>
 <img src=gas1.png id=gas1 hidden>
@@ -233,7 +235,7 @@ onclick = (e) => {
 
 
 
-onmousedown = () => {
+onmousedown = ontouchstart = () => {
  if(ready && !showscore && !flip && step < levels[level].length)
    mdtimeout = setTimeout(()=>{
      md = 1;
@@ -242,7 +244,7 @@ onmousedown = () => {
 }
 
 
-onmouseup = () => {
+onmouseup = ontouchend = () => {
   if(state == 2 && !showscore && !flip && step < levels[level].length){
     clearTimeout(mdtimeout);
     if(md) released = 1;
@@ -289,6 +291,11 @@ onmouseup = () => {
   }
 }
 
+oncontextmenu = (e) => {
+  e.preventDefault();
+  return false;
+}
+
 anim = 1;
 setInterval(() => {
   anim = 3 - anim;
@@ -318,5 +325,18 @@ setInterval(()=>{
 @font-face {
   font-family: pangolin;
   src: url(pangolin.ttf);
+}
+
+* {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+*:focus {
+    outline: none !important;
 }
 </style>
