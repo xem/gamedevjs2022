@@ -59,9 +59,17 @@ burnt = 0;
 levels = [
   , // 0: no
   [{min: 9, max: 10}], // 1: 9-10s
-  [{min: 5, max: 6},{min: 5, max: 6}], // 2: 5-6s + 5-6s
+  [{min: 5, max: 6},{min: 5, max: 6}], // 2: 2 x 5-6s
+  [{min: 3, max: 3.5},{min: 3, max: 3.5},{min: 3, max: 3.5},{min: 3, max: 3.5}], // 3: 5 x 3-3.5s
 
 ];
+
+variants = [
+  0, // 0: no
+  0, // 1: no
+  0, // 2: flip (default)
+  "swap", // 3: swap  
+]
 
 scores = [
   , // 0: no
@@ -133,8 +141,8 @@ draw = () => {
       timer = (new Date() - timer0);
       if(timer < 3000){
         c.font = '50px pangolin';
-        c.globalAlpha = Math.max(((1 / (timer / 1000)) - 0.3), 0);
-        c.fillText((timer/1000).toFixed(2) + "s", 150, 250);
+        c.globalAlpha = Math.max(((1 / (timer / 1000)) - (level > 1 ? 0.5 : 0.3)), 0);
+        c.fillText((timer/1000).toFixed(2), 150, 250);
         c.globalAlpha = 1;
       }
     }
@@ -147,7 +155,7 @@ draw = () => {
       if(scores[level].length > 2) c.font = '30px pangolin';
       c.textAlign = 'center';
       for(i in scores[level]){
-        str += (+i ? " + " : "") + (scores[level][i]/1000).toFixed(2) + "s"
+        str += (+i ? " + " : "") + (scores[level][i]/1000).toFixed(2)
       }
       c.fillText(str, W/2, 250);
       c.textAlign = 'start';
@@ -173,29 +181,24 @@ draw = () => {
       }
       
       if(tooraw && burnt) {
-        console.log("trb");
-        c.drawImage(toorawburntimg, W/2 - 200, H/2 - 100);
+        c.drawImage(toorawburntimg, W/2 - 160, H/2 - 100);
       }
       else if(tooraw && !burnt){
-        console.log("tr");
         c.drawImage(toorawimg, W/2 - 100, H/2 - 100);
       }
       else if(burnt && !tooraw){
-        console.log("b");
         c.drawImage(burntimg, W/2 - 100, H/2 - 100);
       }
       else if(!tooraw && !burnt) {
-        console.log("win");
         win = 1;
         c.drawImage(ok, W/2 - 100, H/2 - 100);
       }
-      
-      
+
       c.drawImage(hand, W/2 + 200, H/2 - 100);
     }
     
-    // flip
-    if(!md && flip){
+    // flip animation (default)
+    if(!md && flip && !variants[level]){
       c.drawImage(pan1, W/2 - 250, H/2 - 60);
       c.save();
       c.translate(W/2 + 110, H/2 - 30);
@@ -203,6 +206,25 @@ draw = () => {
       c.drawImage(window["food" + level], 0, 0);
       c.globalAlpha = fry / 100;
       c.drawImage(window["foodend" + level], 0, 0);
+      c.globalAlpha = 1;
+      c.restore();
+      c.drawImage(pan2, W/2 - 250, H/2 - 60);
+    }
+    
+    // swap animation
+    if(!md && flip && variants[level] == "swap"){
+      c.drawImage(pan1, W/2 - 250, H/2 - 60);
+      c.save();
+      c.translate(W/2 + 110, H/2 - 30);
+      if(flip > 9){
+        c.drawImage(window["food" + level], (20-flip) * 10, -(20-flip) * 10);
+        c.globalAlpha = fry / 100;
+        c.drawImage(window["foodend" + level], (20-flip) * 10, -(20-flip) * 10);
+      }
+      if(flip <= 9){
+        c.drawImage(window["food" + level], -220 + (9-flip) * 10, -90 + (9-flip) * 10);
+        fry = 0;
+      }
       c.globalAlpha = 1;
       c.restore();
       c.drawImage(pan2, W/2 - 250, H/2 - 60);
@@ -315,7 +337,7 @@ flip = 0;
 setInterval(()=>{
   if(flip > 0){
     flip--;
-    if(flip == 0){ fry = 5; }
+    if(flip == 0){ fry = variants[level] ? 0 : 10; }
     draw();
   }
 },33);
