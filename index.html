@@ -42,7 +42,7 @@
 state = 0;
 white = 0;
 win = 0;
-level = 1;
+level = 0;
 fry = 0;
 released = 0;
 showtime = 0;
@@ -55,12 +55,15 @@ timer = 0;
 ready = 0;
 tooraw = 0;
 burnt = 0;
+waittimer = 0;
 
 levels = [
   , // 0: no
   [{min: 9, max: 10}], // 1: 9-10s
   [{min: 5, max: 6},{min: 5, max: 6}], // 2: 2 x 5-6s
   [{min: 3, max: 3.5},{min: 3, max: 3.5},{min: 3, max: 3.5},{min: 3, max: 3.5}], // 3: 5 x 3-3.5s
+  [{min: 18, max: 20}], // 4: 18-20
+  [{min: 0, max: 0}], // 4: wait 15
 
 ];
 
@@ -68,7 +71,9 @@ variants = [
   0, // 0: no
   0, // 1: no
   0, // 2: flip (default)
-  "swap", // 3: swap  
+  "swap", // 3: swap,
+  0, // 4: no
+  "wait", // 5: wait 
 ]
 
 scores = [
@@ -118,9 +123,9 @@ draw = () => {
     // Idle
     if(md == 0 && !flip){
       c.drawImage(pan1, W/2 - 250, H/2 - 80);
-      c.drawImage(window["food" + level], W/2 - 30, H/2 + 10);
+      c.drawImage(window["food" + level], W/2 - 30, H/2 + 10 + (level == 5 ? -40 : 0));
       c.globalAlpha = fry / 100;
-      c.drawImage(window["foodend" + level], W/2 - 30, H/2 + 10);
+      c.drawImage(window["foodend" + level], W/2 - 30, H/2 + 10 + (level == 5 ? -40 : 0));
       c.globalAlpha = 1;
       c.drawImage(pan2, W/2 - 250, H/2 - 80);
     }
@@ -128,9 +133,9 @@ draw = () => {
     // Pressed
     if(md && !flip) {
       c.drawImage(pan1, W/2 - 250, H/2 - 20);
-      c.drawImage(window["food" + level], W/2 - 30, H/2 + 70);
+      c.drawImage(window["food" + level], W/2 - 30, H/2 + 70  + (level == 5 ? -40 : 0));
       c.globalAlpha = fry / 200;
-      c.drawImage(window["foodend" + level], W/2 - 30, H/2 + 70);
+      c.drawImage(window["foodend" + level], W/2 - 30, H/2 + 70 + (level == 5 ? -40 : 0));
       c.globalAlpha = 1;
       c.drawImage(pan2, W/2 - 250, H/2 - 20);
       c.drawImage(window["smoke" + anim], W/2 - 300, H/2 - 100);
@@ -167,16 +172,24 @@ draw = () => {
       tooraw = 0;
       burnt = 0;
     
-      for(i in scores[level]){
-        if(scores[level][i] < levels[level][i].min * 1000){
-          tooraw = 1;
-          win = 0;
-        }
-        else if(scores[level][i] >= levels[level][i].min * 1000 && scores[level][i] <= levels[level][i].max * 1000){
-        }
-        else if(scores[level][i]  > levels[level][i].max * 1000){
-          burnt = 1;
-          win = 0;
+      if(level == 5){
+        console.log(scores[level]);
+        if(scores[level][0] > 0) burnt = 1;
+        else burnt = 0;
+      }
+      
+      else {
+        for(i in scores[level]){
+          if(scores[level][i] < levels[level][i].min * 1000){
+            tooraw = 1;
+            win = 0;
+          }
+          else if(scores[level][i] >= levels[level][i].min * 1000 && scores[level][i] <= levels[level][i].max * 1000){
+          }
+          else if(scores[level][i]  > levels[level][i].max * 1000){
+            burnt = 1;
+            win = 0;
+          }
         }
       }
       
@@ -235,7 +248,7 @@ draw = () => {
 
 onclick = (e) => {
 
-  if(!showscore){
+  if(!showtime && !white && !showscore && !flip){
     
     X = e.pageX;
     Y = e.pageY;
@@ -258,7 +271,7 @@ onclick = (e) => {
 
 
 onmousedown = ontouchstart = () => {
- if(ready && !showscore && !flip && step < levels[level].length)
+ if(ready && !white && !showtime && !showscore && !flip && step < levels[level].length)
    mdtimeout = setTimeout(()=>{
      md = 1;
      timer0 = new Date();
@@ -267,10 +280,10 @@ onmousedown = ontouchstart = () => {
 
 
 onmouseup = ontouchend = () => {
-  if(state == 2 && !showscore && !flip && step < levels[level].length){
+  if(state == 2 && !white && !showtime && !showscore && !flip && step < levels[level].length){
     clearTimeout(mdtimeout);
     if(md) released = 1;
-    timer = (new Date()) - timer0;
+    timer = (new Date()) - timer0 + 10;
     scores[level][step] = timer;
     md = 0;
     draw();
@@ -297,7 +310,10 @@ onmouseup = ontouchend = () => {
       
       setTimeout(()=>{
         state = 2;
-        if(win == 1) level ++;
+        if(win == 1) {
+          level ++;
+        }
+        waittimer = 0;
         fry = 0;
         released = 0;
         showtime = 0;
@@ -331,6 +347,46 @@ setInterval(()=>{
     fry ++;
     draw();
   }
+
+  if(level == 5) {
+  
+    waittimer++;
+    
+    if(waittimer == 455){
+    
+      scores[level][0] = 0;
+    
+      setTimeout(()=>{
+        showscore = 1;
+        draw();
+      }, 1000 + scores[level].length * 500);
+      
+      setTimeout(()=>{
+        white = 1;
+        draw();
+      }, 1000 + scores[level].length * 500 + 2000);
+      
+      setTimeout(()=>{
+        state = 2;
+        if(win == 1) {
+          level ++;
+        }
+        waittimer = 0;
+        fry = 0;
+        released = 0;
+        showtime = 0;
+        showscore = 0;
+        white = 0;
+        md = 0;
+        step = 0;
+        ready = 0;
+        setTimeout(()=>{ready = 1}, 200);
+        draw();
+      }, 1000 + scores[level].length * 500 + 2500); 
+    }
+  }
+    
+    
 },33);
 
 flip = 0;
