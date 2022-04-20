@@ -25,16 +25,28 @@
 <img src=rules3.png id=rules3 hidden>
 <img src=rules4.png id=rules4 hidden>
 <img src=rules5.png id=rules5 hidden>
+<img src=rules6.png id=rules6 hidden>
+<img src=rules7.png id=rules7 hidden>
+<img src=rules8.png id=rules8 hidden>
+<img src=rules9.png id=rules9 hidden>
 <img src=food1.png id=food1 hidden>
 <img src=food2.png id=food2 hidden>
 <img src=food3.png id=food3 hidden>
 <img src=food4.png id=food4 hidden>
 <img src=food5.png id=food5 hidden>
+<img src=food6.png id=food6 hidden>
+<img src=food7.png id=food7 hidden>
+<img src=food8.png id=food8 hidden>
+<img src=food9.png id=food9 hidden>
 <img src=foodend1.png id=foodend1 hidden>
 <img src=foodend2.png id=foodend2 hidden>
 <img src=foodend3.png id=foodend3 hidden>
 <img src=foodend4.png id=foodend4 hidden>
 <img src=foodend5.png id=foodend5 hidden>
+<img src=foodend6.png id=foodend6 hidden>
+<img src=foodend7.png id=foodend7 hidden>
+<img src=foodend8.png id=foodend8 hidden>
+<img src=foodend9.png id=foodend9 hidden>
 <body style="overflow:hidden;font-family:pangolin">.
 <canvas id=a style="position:fixed;top:50%;left:50%;transform:translateX(-50%)translateY(-50%);cursor:pointer;width:100vmin;height=100vmin;">
 
@@ -42,7 +54,7 @@
 state = 0;
 white = 0;
 win = 0;
-level = 0;
+level = 6;
 fry = 0;
 released = 0;
 showtime = 0;
@@ -57,13 +69,16 @@ tooraw = 0;
 burnt = 0;
 waittimer = 0;
 
+if(!level) level = 1;
+
 levels = [
   , // 0: no
   [{min: 9, max: 10}], // 1: 9-10s
   [{min: 5, max: 6},{min: 5, max: 6}], // 2: 2 x 5-6s
-  [{min: 3, max: 3.5},{min: 3, max: 3.5},{min: 3, max: 3.5},{min: 3, max: 3.5}], // 3: 5 x 3-3.5s
+  [{min: 3, max: 3.5},{min: 3, max: 3.5},{min: 3, max: 3.5}], // 3: 3 x 3-3.5s
   [{min: 18, max: 20}], // 4: 18-20
-  [{min: 0, max: 0}], // 4: wait 15
+  [{min: 0, max: 0}], // 5: wait 15
+  [{min: 12, max: 13},{min: 12, max: 13},{min: 12, max: 13},{min: 12, max: 13}], // 6: total: 12-13
 
 ];
 
@@ -73,7 +88,8 @@ variants = [
   0, // 2: flip (default)
   "swap", // 3: swap,
   0, // 4: no
-  "wait", // 5: wait 
+  "wait", // 5: wait
+  "total", // 6: total
 ]
 
 scores = [
@@ -162,6 +178,7 @@ draw = () => {
       for(i in scores[level]){
         str += (+i ? " + " : "") + (scores[level][i]/1000).toFixed(2)
       }
+      if(level == 6) str += " = " + (scores[level][0] + scores[level][1] + scores[level][2] + scores[level][3])/1000;
       c.fillText(str, W/2, 250);
       c.textAlign = 'start';
     }
@@ -173,9 +190,24 @@ draw = () => {
       burnt = 0;
     
       if(level == 5){
-        console.log(scores[level]);
         if(scores[level][0] > 0) burnt = 1;
         else burnt = 0;
+      }
+      
+      else if(level == 6){
+        if(scores[level][0] + scores[level][1] + scores[level][2] + scores[level][3] < 12*1000){
+          tooraw = 1;
+          win = 0;
+        }
+        else if(scores[level][0] + scores[level][1] + scores[level][2] + scores[level][3] > 13*1000){
+          burnt = 1;
+          win = 0;
+        }
+        if(!scores[level].find(a=>a>=2*1000 && a<=3*1000) && !scores[level].find(a=>a>=5*1000 && a<=6*1000)){
+          burnt = 1;
+          tooraw = 1;
+          win = 0;
+        }
       }
       
       else {
@@ -185,6 +217,7 @@ draw = () => {
             win = 0;
           }
           else if(scores[level][i] >= levels[level][i].min * 1000 && scores[level][i] <= levels[level][i].max * 1000){
+            // win
           }
           else if(scores[level][i]  > levels[level][i].max * 1000){
             burnt = 1;
@@ -225,7 +258,7 @@ draw = () => {
     }
     
     // swap animation
-    if(!md && flip && variants[level] == "swap"){
+    if(!md && flip && (variants[level] == "swap" || variants[level] == "total")){
       c.drawImage(pan1, W/2 - 250, H/2 - 60);
       c.save();
       c.translate(W/2 + 110, H/2 - 30);
