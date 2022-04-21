@@ -63,6 +63,7 @@ step = 0;
 md = 0;
 mdtimeout = 0;
 timer0 = 0;
+timerb0 = 0;
 timer = 0;
 ready = 0;
 tooraw = 0;
@@ -79,6 +80,7 @@ levels = [
   [{min: 18, max: 20}], // 4: 18-20
   [{min: 0, max: 0}], // 5: wait 15
   [{min: 12, max: 13},{min: 12, max: 13},{min: 12, max: 13},{min: 12, max: 13}], // 6: total: 12-13
+  [{min: 9, max: 10},{min: 9, max: 10},{min: 9, max: 10},{min: 9, max: 10},{min: 9, max: 10}], // 7: fry-rest-fry-rest-fry, total: 9-10, rest 7-8
 
 ];
 
@@ -90,6 +92,7 @@ variants = [
   0, // 4: no
   "wait", // 5: wait
   "total", // 6: total
+  "total+rest" // 7: total+rest
 ]
 
 scores = [
@@ -100,6 +103,7 @@ scores = [
   [], // 4
   [], // 5
   [], // 6
+  [], // 7
   
 ];
 
@@ -175,11 +179,24 @@ draw = () => {
       if(scores[level].length == 2) c.font = '40px pangolin';
       if(scores[level].length > 2) c.font = '30px pangolin';
       c.textAlign = 'center';
-      for(i in scores[level]){
-        str += (+i ? " + " : "") + (scores[level][i]/1000).toFixed(2)
+      
+      
+      if(level == 7){
+        str = "cook = " + ((scores[7][0] + scores[7][2] + scores[7][4])/1000).toFixed(2) + "s"
+        c.fillText(str, W/2, 240);
+        str = "rest = " + ((scores[7][1] + scores[7][3])/1000).toFixed(2) + "s";
+        c.fillText(str, W/2, 270);
       }
-      if(level == 6) str += " = " + ((scores[level][0] + scores[level][1] + scores[level][2] + scores[level][3])/1000).toFixed(2);
-      c.fillText(str, W/2, 250);
+      
+      else {
+      
+        for(i in scores[level]){
+          str += (+i ? " + " : "") + (scores[level][i]/1000).toFixed(2)
+        }
+        if(level == 6) str += " = " + ((scores[level][0] + scores[level][1] + scores[level][2] + scores[level][3])/1000).toFixed(2);
+        c.fillText(str, W/2, 250);
+        
+      }
       c.textAlign = 'start';
     }
     
@@ -204,6 +221,19 @@ draw = () => {
           win = 0;
         }
         if(!scores[level].find(a=>a>=2*1000 && a<=3*1000) && !scores[level].find(a=>a>=5*1000 && a<=6*1000)){
+          burnt = 1;
+          tooraw = 1;
+          win = 0;
+        }
+      }
+      
+      else if(level == 7){
+        
+        if((scores[7][0] + scores[7][2] + scores[7][4]) < 9 * 1000 
+        || (scores[7][0] + scores[7][2] + scores[7][4]) > 10 * 1000
+        || (scores[7][1] + scores[7][3]) < 7 * 1000
+        || (scores[7][1] + scores[7][3]) > 8 * 1000
+        ){
           burnt = 1;
           tooraw = 1;
           win = 0;
@@ -244,7 +274,7 @@ draw = () => {
     }
     
     // flip animation (default)
-    if(!md && flip && !variants[level]){
+    if(!md && flip && (!variants[level] || level == 7)){
       c.drawImage(pan1, W/2 - 250, H/2 - 60);
       c.save();
       c.translate(W/2 + 110, H/2 - 30);
@@ -304,11 +334,23 @@ onclick = (e) => {
 
 
 onmousedown = ontouchstart = () => {
- if(ready && !white && !showtime && !showscore && !flip && step < levels[level].length)
-   mdtimeout = setTimeout(()=>{
-     md = 1;
-     timer0 = new Date();
-   }, 34);
+ 
+  if(ready && !white && !showtime && !showscore && !flip && step < levels[level].length){
+ 
+    if(level == 7 && scores[7][0]){
+      timer = (new Date()) - timerb0 + 10;
+      scores[level][step] = timer;
+      console.log(scores[7]);
+      step++;
+    }
+    
+    mdtimeout = setTimeout(()=>{
+      md = 1;
+      timer0 = new Date();
+      console.log(scores[7]);
+    }, 34);
+    
+  }
 }
 
 
@@ -317,6 +359,7 @@ onmouseup = ontouchend = () => {
     clearTimeout(mdtimeout);
     if(md) released = 1;
     timer = (new Date()) - timer0 + 10;
+    console.log(scores[7]);
     scores[level][step] = timer;
     md = 0;
     draw();
@@ -338,6 +381,7 @@ onmouseup = ontouchend = () => {
       
       setTimeout(()=>{
         white = 1;
+        scores[level] = [];
         draw();
       }, 1000 + scores[level].length * 500 + 2000);
       
@@ -359,6 +403,10 @@ onmouseup = ontouchend = () => {
         draw();
       }, 1000 + scores[level].length * 500 + 2500);
     }
+  }
+  if(level == 7){
+    timerb0 = new Date();
+    console.log(scores[7]);
   }
 }
 
