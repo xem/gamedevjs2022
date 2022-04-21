@@ -54,7 +54,7 @@
 state = 0;
 white = 0;
 win = 0;
-level = 6;
+level = 0;
 fry = 0;
 released = 0;
 showtime = 0;
@@ -178,7 +178,7 @@ draw = () => {
       for(i in scores[level]){
         str += (+i ? " + " : "") + (scores[level][i]/1000).toFixed(2)
       }
-      if(level == 6) str += " = " + (scores[level][0] + scores[level][1] + scores[level][2] + scores[level][3])/1000;
+      if(level == 6) str += " = " + ((scores[level][0] + scores[level][1] + scores[level][2] + scores[level][3])/1000).toFixed(2);
       c.fillText(str, W/2, 250);
       c.textAlign = 'start';
     }
@@ -190,7 +190,7 @@ draw = () => {
       burnt = 0;
     
       if(level == 5){
-        if(scores[level][0] > 0) burnt = 1;
+        if(scores[level][0] > 0 || fry > 0) burnt = 1;
         else burnt = 0;
       }
       
@@ -381,7 +381,7 @@ setInterval(()=>{
     draw();
   }
 
-  if(level == 5) {
+  if(level == 5 && !fry) {
   
     waittimer++;
     
