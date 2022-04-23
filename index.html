@@ -1,18 +1,24 @@
-<!doctype html>
+﻿<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=0.5" />
 <title>IT'S TOO RAW!</title>
 <img src=bonus.png id=bonus hidden>
 <img src=coil.png id=coil hidden>
 <img src=gas1.png id=gas1 hidden>
 <img src=gas2.png id=gas2 hidden>
+<img src=gas9.png id=gas9 hidden>
 <img src=ipfs.png id=ipfs hidden>
 <img src=mpl.png id=mpl hidden>
 <img src=near.png id=near hidden>
 <img src=pan2.png id=pan2 hidden>
 <img src=pan1.png id=pan1 hidden>
+<img src=panb1.png id=panb1 hidden>
+<img src=panc1.png id=panc1 hidden>
+<img src=panc2.png id=panc2 hidden>
 <img src=play.png id=play hidden>
 <img src=smoke1.png id=smoke1 hidden>
+<img src=smoke1b.png id=smoke1b hidden>
 <img src=smoke2.png id=smoke2 hidden>
+<img src=smoke2b.png id=smoke2b hidden>
 <img src=start.png id=start hidden>
 <img src=title.png id=title hidden>
 <img src=tooraw.png id=toorawimg hidden>
@@ -47,6 +53,7 @@
 <img src=foodend7.png id=foodend7 hidden>
 <img src=foodend8.png id=foodend8 hidden>
 <img src=foodend9.png id=foodend9 hidden>
+<img src=end.png id=end hidden>
 <body style="overflow:hidden;font-family:pangolin">.
 <canvas id=a style="position:fixed;top:50%;left:50%;transform:translateX(-50%)translateY(-50%);cursor:pointer;width:100vmin;height=100vmin;">
 
@@ -54,7 +61,7 @@
 state = 0;
 white = 0;
 win = 0;
-level = 0;
+level = 1;
 fry = 0;
 released = 0;
 showtime = 0;
@@ -75,12 +82,14 @@ if(!level) level = 1;
 levels = [
   , // 0: no
   [{min: 9, max: 10}], // 1: 9-10s
-  [{min: 5, max: 6},{min: 5, max: 6}], // 2: 2 x 5-6s
-  [{min: 3, max: 3.5},{min: 3, max: 3.5},{min: 3, max: 3.5}], // 3: 3 x 3-3.5s
-  [{min: 18, max: 20}], // 4: 18-20
-  [{min: 0, max: 0}], // 5: wait 15
-  [{min: 12, max: 13},{min: 12, max: 13},{min: 12, max: 13},{min: 12, max: 13}], // 6: total: 12-13
-  [{min: 9, max: 10},{min: 9, max: 10},{min: 9, max: 10},{min: 9, max: 10},{min: 9, max: 10}], // 7: fry-rest-fry-rest-fry, total: 9-10, rest 7-8
+  [{min: 5, max: 6}, {min: 5, max: 6}], // 2: 2 x 5-6s
+  [{min: 3, max: 3.5}, {min: 3, max: 3.5},{min: 3, max: 3.5}], // 3: 3 x 3-3.5s
+  [{min: 18, max: 20}], // 4: 18-20s
+  [{min: 0, max: 0}], // 5: wait 15s
+  [{min: 12, max: 13}, {min: 12, max: 13},{min: 12, max: 13},{min: 12, max: 13}], // 6: total: 12-13s
+  [{min: 9, max: 10}, {min: 9, max: 10},{min: 9, max: 10},{min: 9, max: 10},{min: 9, max: 10}], // 7: fry-rest-fry-rest-fry, total: 9-10s, rest 7-8s
+  [{min: 100, max: 105}], // 8: 100-105°
+  [{min: 2, max: 2}] // 9: 2s
 
 ];
 
@@ -92,7 +101,9 @@ variants = [
   0, // 4: no
   "wait", // 5: wait
   "total", // 6: total
-  "total+rest" // 7: total+rest
+  "total+rest", // 7: total+rest
+  "deg", // 8: deg
+  0, // 9: no
 ]
 
 scores = [
@@ -104,8 +115,18 @@ scores = [
   [], // 5
   [], // 6
   [], // 7
+  [], // 8
+  [], // 9
   
 ];
+
+anim = 1;
+setAnim = () => {
+  anim = 3 - anim;
+  draw();
+  setTimeout(setAnim, 100 + Math.random() * 200);
+}
+
 
 onload = () => {
   W = a.width = 600;
@@ -113,14 +134,22 @@ onload = () => {
   c = a.getContext("2d");
   state = 0; // title
   draw();
+  
+
+  setAnim();
+
 }
 
 draw = () => {
 
   a.width ^= 0;
+  
+  // end
+  if(level == 10)
+    c.drawImage(end, W/2 - 250, H/2 - 270);
 
   // Title
-  if(state == 0){
+  else if(state == 0){
     c.drawImage(title, W/2 - 300, H/2 - 270);
     c.drawImage(play, W/2 - 100, H/2 + 130);
   }
@@ -138,27 +167,38 @@ draw = () => {
   // Levels
   else if(state == 2 && !white){
     c.drawImage(window["rules" + level], W/2 - 250, H/2 - 260);
-    c.drawImage(window["gas" + anim], W/2 - 250, H/2 - 80);
+    if(level != 9) c.drawImage(window["gas" + anim], W/2 - 250, H/2 - 80);
+    if(level == 9) c.drawImage(gas9, W/2 - 250, H/2 - 80);
     
     // Idle
     if(md == 0 && !flip){
-      c.drawImage(pan1, W/2 - 250, H/2 - 80);
+      if(level == 8)
+        c.drawImage(panb1, W/2 - 250, H/2 - 80);
+      else if(level == 9)
+        c.drawImage(window["panc" + anim], W/2 - 250, H/2 - 80);
+      else 
+        c.drawImage(pan1, W/2 - 250, H/2 - 80);
       c.drawImage(window["food" + level], W/2 - 30, H/2 + 10 + (level == 5 ? -40 : 0));
       c.globalAlpha = fry / 100;
       c.drawImage(window["foodend" + level], W/2 - 30, H/2 + 10 + (level == 5 ? -40 : 0));
       c.globalAlpha = 1;
-      c.drawImage(pan2, W/2 - 250, H/2 - 80);
+      if(level < 8) c.drawImage(pan2, W/2 - 250, H/2 - 80);
     }
     
     // Pressed
     if(md && !flip) {
+      if(level == 8)
+        c.drawImage(panb1, W/2 - 250, H/2 - 20);
+      else if(level == 9)
+        c.drawImage(window["panc" + anim], W/2 - 250, H/2 - 20);
+      else 
       c.drawImage(pan1, W/2 - 250, H/2 - 20);
-      c.drawImage(window["food" + level], W/2 - 30, H/2 + 70  + (level == 5 ? -40 : 0));
+      c.drawImage(window["food" + level], W/2 - 30, H/2 + 70  + (level == 5 ? -40 : 0) + (level == 9 ? -60 : 0));
       c.globalAlpha = fry / 200;
-      c.drawImage(window["foodend" + level], W/2 - 30, H/2 + 70 + (level == 5 ? -40 : 0));
+      c.drawImage(window["foodend" + level], W/2 - 30, H/2 + 70 + (level == 5 ? -40 : 0) + (level == 9 ? -60 : 0));
       c.globalAlpha = 1;
-      c.drawImage(pan2, W/2 - 250, H/2 - 20);
-      c.drawImage(window["smoke" + anim], W/2 - 300, H/2 - 100);
+      if(level < 8) c.drawImage(pan2, W/2 - 250, H/2 - 20);
+      c.drawImage(window["smoke" + anim + (level == 8 ? "b" : "")], W/2 - 300, H/2 - 100 + (level == 8 ? -50 : 0));
     }
     
     // 1....2.....3
@@ -166,8 +206,8 @@ draw = () => {
       timer = (new Date() - timer0);
       if(timer < 3000){
         c.font = '50px pangolin';
-        c.globalAlpha = Math.max(((1 / (timer / 1000)) - (level > 1 ? 0.5 : 0.3)), 0);
-        c.fillText((timer/1000).toFixed(2), 150, 250);
+        c.globalAlpha = Math.max(((1 / (timer / 1000)) - (level == 0 ? 0.3 : level == 8 ? 0.1 : level == 9 ? 1.5 : 0.5)), 0);
+        c.fillText((timer * (level == 8 ? 7.7 : 1)/1000).toFixed(level == 8 ? 0 : level == 9 ? 1 : 2) + (level == 8 ? " °C" : ""), 150, 250);
         c.globalAlpha = 1;
       }
     }
@@ -188,10 +228,15 @@ draw = () => {
         c.fillText(str, W/2, 270);
       }
       
+      else if(level == 8){
+        str = Math.round(scores[8][0] * 7.7 / 1000).toFixed(0) + " °C";
+        c.fillText(str, W/2, 240);
+      }
+      
       else {
       
         for(i in scores[level]){
-          str += (+i ? " + " : "") + (scores[level][i]/1000).toFixed(2)
+          str += (+i ? " + " : "") + (scores[level][i]/1000).toFixed(level == 9 ? 1 : 2)
         }
         if(level == 6) str += " = " + ((scores[level][0] + scores[level][1] + scores[level][2] + scores[level][3])/1000).toFixed(2);
         c.fillText(str, W/2, 250);
@@ -240,6 +285,26 @@ draw = () => {
         }
       }
       
+      else if(level == 8){
+        if((Math.round(scores[8][0] * 7.7 / 1000) * 1000 < 100 * 1000) || ((Math.round(scores[8][0] * 7.7 / 1000) * 1000 > 105 * 1000))){
+          burnt = 1;
+          tooraw = 1;
+          win = 0;
+        }
+      }
+      
+      else if(level == 9){
+        console.log(scores[9][0].toFixed(1));
+        if((scores[9][0]/1000).toFixed(1) == "2.0"){
+          win = 1;
+        }
+        else {
+          burnt = 1;
+          tooraw = 1;
+          win = 0;
+        }
+      }
+      
       else {
         for(i in scores[level]){
           if(scores[level][i] < levels[level][i].min * 1000){
@@ -257,7 +322,7 @@ draw = () => {
       }
       
       if(tooraw && burnt) {
-        c.drawImage(toorawburntimg, W/2 - 160, H/2 - 100);
+        c.drawImage(toorawburntimg, W/2 - 160, H/2 - 100 + (level == 8 ? -30 : 0));
       }
       else if(tooraw && !burnt){
         c.drawImage(toorawimg, W/2 - 100, H/2 - 100);
@@ -267,7 +332,7 @@ draw = () => {
       }
       else if(!tooraw && !burnt) {
         win = 1;
-        c.drawImage(ok, W/2 - 100, H/2 - 100);
+        c.drawImage(ok, W/2 - 100, H/2 - 100 + (level == 8 ? -30 : 0));
       }
 
       c.drawImage(hand, W/2 + 200, H/2 - 100);
@@ -275,7 +340,8 @@ draw = () => {
     
     // flip animation (default)
     if(!md && flip && (!variants[level] || level == 7)){
-      c.drawImage(pan1, W/2 - 250, H/2 - 60);
+      if(level != 8) c.drawImage(pan1, W/2 - 250, H/2 - 60);
+      else c.drawImage(pan1, W/2 - 250, H/2 - 60);
       c.save();
       c.translate(W/2 + 110, H/2 - 30);
       c.rotate((flip-20+120)/6 + 30);
@@ -284,12 +350,13 @@ draw = () => {
       c.drawImage(window["foodend" + level], 0, 0);
       c.globalAlpha = 1;
       c.restore();
-      c.drawImage(pan2, W/2 - 250, H/2 - 60);
+      if(level != 8) c.drawImage(pan2, W/2 - 250, H/2 - 60);
     }
     
     // swap animation
     if(!md && flip && (variants[level] == "swap" || variants[level] == "total")){
-      c.drawImage(pan1, W/2 - 250, H/2 - 60);
+      if(level != 8) c.drawImage(pan1, W/2 - 250, H/2 - 60);
+      else c.drawImage(pan1, W/2 - 250, H/2 - 60);
       c.save();
       c.translate(W/2 + 110, H/2 - 30);
       if(flip > 9){
@@ -303,7 +370,7 @@ draw = () => {
       }
       c.globalAlpha = 1;
       c.restore();
-      c.drawImage(pan2, W/2 - 250, H/2 - 60);
+      if(level != 8) c.drawImage(pan2, W/2 - 250, H/2 - 60);
     }
     
   }
@@ -414,12 +481,6 @@ oncontextmenu = (e) => {
   e.preventDefault();
   return false;
 }
-
-anim = 1;
-setInterval(() => {
-  anim = 3 - anim;
-  draw();
-}, 250);
 
 
 fry = 0;
