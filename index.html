@@ -2,6 +2,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=0.5" />
 <title>IT'S TOO RAW!</title>
 <img src=bonus.png id=bonus hidden>
+<img src=easymode.png id=easymode hidden>
 <img src=coil.png id=coil hidden>
 <img src=gas1.png id=gas1 hidden>
 <img src=gas2.png id=gas2 hidden>
@@ -35,6 +36,15 @@
 <img src=rules7.png id=rules7 hidden>
 <img src=rules8.png id=rules8 hidden>
 <img src=rules9.png id=rules9 hidden>
+<img src=rules1e.png id=rules1e hidden>
+<img src=rules2e.png id=rules2e hidden>
+<img src=rules3e.png id=rules3e hidden>
+<img src=rules4e.png id=rules4e hidden>
+<img src=rules5e.png id=rules5e hidden>
+<img src=rules6e.png id=rules6e hidden>
+<img src=rules7e.png id=rules7e hidden>
+<img src=rules8e.png id=rules8e hidden>
+<img src=rules9e.png id=rules9e hidden>
 <img src=food1.png id=food1 hidden>
 <img src=food2.png id=food2 hidden>
 <img src=food3.png id=food3 hidden>
@@ -54,10 +64,14 @@
 <img src=foodend8.png id=foodend8 hidden>
 <img src=foodend9.png id=foodend9 hidden>
 <img src=end.png id=end hidden>
+<img src=fails.png id=fails hidden>
+<img src=help.png id=help hidden>
+
 <body style="overflow:hidden;font-family:pangolin">.
 <canvas id=a style="position:fixed;top:50%;left:50%;transform:translateX(-50%)translateY(-50%);cursor:pointer;width:100vmin;height=100vmin;">
 
 <script>
+easy = 1;
 state = 0;
 white = 0;
 win = 0;
@@ -76,6 +90,8 @@ ready = 0;
 tooraw = 0;
 burnt = 0;
 waittimer = 0;
+fail = 0;
+sawhelp = 0;
 
 if(!level) level = 1;
 
@@ -92,6 +108,25 @@ levels = [
   [{min: 2, max: 2}] // 9: 2s
 
 ];
+
+if(easy){
+        
+  levels = [
+  
+    , // 0: no
+    [{min: 8, max: 11}], // 1: 8-11s
+    [{min: 4, max: 6}, {min: 4, max: 6}], // 2: 2 x 4-6s
+    [{min: 3, max: 4}, {min: 3, max: 4},{min: 3, max: 4}], // 3: 3 x 3-4s
+    [{min: 16, max: 20}], // 4: 18-20s
+    [{min: 0, max: 0}], // 5: wait 15s
+    [{min: 12, max: 14}, {min: 12, max: 14},{min: 12, max: 14},{min: 12, max: 14}], // 6: total: 12-14s
+    [{min: 8, max: 10}, {min: 8, max: 10},{min: 8, max: 10},{min: 8, max: 10},{min: 8, max: 10}], // 7: fry-rest-fry-rest-fry, total: 8-10s, rest 6-8s
+    [{min: 100, max: 110}], // 8: 100-110°
+    [{min: 2, max: 2}] // 9: 2s
+
+  ];
+
+}
 
 variants = [
   0, // 0: no
@@ -144,9 +179,24 @@ draw = () => {
 
   a.width ^= 0;
   
+  // Help
+  if(!easy && fail == 5 && level < 9 && !sawhelp){
+    state = 99;
+    c.drawImage(help, W/2 - 240, H/2 - 130);
+  }
+  
   // end
-  if(level == 10)
+  else if(level == 10){
     c.drawImage(end, W/2 - 250, H/2 - 270);
+    if(fail){
+      c.drawImage(fails, 10, H - 45);
+      c.font = '30px pangolin';
+      c.fillText(fail, 95, H - 18);
+    }
+    if(easy){
+      c.drawImage(easymode, 10, H - 75);
+    }
+  }
 
   // Title
   else if(state == 0){
@@ -166,9 +216,17 @@ draw = () => {
   
   // Levels
   else if(state == 2 && !white){
-    c.drawImage(window["rules" + level], W/2 - 250, H/2 - 260);
+    c.drawImage(window["rules" + level + (easy ? "e" : "")], W/2 - 250, H/2 - 260);
     if(level != 9) c.drawImage(window["gas" + anim], W/2 - 250, H/2 - 80);
     if(level == 9) c.drawImage(gas9, W/2 - 250, H/2 - 80);
+    if(fail){
+      c.drawImage(fails, 10, H - 45);
+      c.font = '30px pangolin';
+      c.fillText(fail, 95, H - 18);
+    }
+    if(easy){
+      c.drawImage(easymode, 10, H - 75);
+    }
     
     // Idle
     if(md == 0 && !flip){
@@ -247,76 +305,147 @@ draw = () => {
     
     // Show score
     if(showscore && !flip){
-    
+              
       tooraw = 0;
       burnt = 0;
     
-      if(level == 5){
-        if(scores[level][0] > 0 || fry > 0) burnt = 1;
-        else burnt = 0;
-      }
+      if(easy){
       
-      else if(level == 6){
-        if(scores[level][0] + scores[level][1] + scores[level][2] + scores[level][3] < 12*1000){
-          tooraw = 1;
-          win = 0;
+        if(level == 5){
+          if(scores[level][0] > 0 || fry > 0) burnt = 1;
+          else burnt = 0;
         }
-        else if(scores[level][0] + scores[level][1] + scores[level][2] + scores[level][3] > 13*1000){
-          burnt = 1;
-          win = 0;
-        }
-        if(!scores[level].find(a=>a>=2*1000 && a<=3*1000) && !scores[level].find(a=>a>=5*1000 && a<=6*1000)){
-          burnt = 1;
-          tooraw = 1;
-          win = 0;
-        }
-      }
-      
-      else if(level == 7){
         
-        if((scores[7][0] + scores[7][2] + scores[7][4]) < 9 * 1000 
-        || (scores[7][0] + scores[7][2] + scores[7][4]) > 10 * 1000
-        || (scores[7][1] + scores[7][3]) < 7 * 1000
-        || (scores[7][1] + scores[7][3]) > 8 * 1000
-        ){
-          burnt = 1;
-          tooraw = 1;
-          win = 0;
-        }
-      }
-      
-      else if(level == 8){
-        if((Math.round(scores[8][0] * 7.7 / 1000) * 1000 < 100 * 1000) || ((Math.round(scores[8][0] * 7.7 / 1000) * 1000 > 105 * 1000))){
-          burnt = 1;
-          tooraw = 1;
-          win = 0;
-        }
-      }
-      
-      else if(level == 9){
-        console.log(scores[9][0].toFixed(1));
-        if((scores[9][0]/1000).toFixed(1) == "2.0"){
-          win = 1;
-        }
-        else {
-          burnt = 1;
-          tooraw = 1;
-          win = 0;
-        }
-      }
-      
-      else {
-        for(i in scores[level]){
-          if(scores[level][i] < levels[level][i].min * 1000){
+        else if(level == 6){
+          if(scores[level][0] + scores[level][1] + scores[level][2] + scores[level][3] < 12*1000){
             tooraw = 1;
             win = 0;
           }
-          else if(scores[level][i] >= levels[level][i].min * 1000 && scores[level][i] <= levels[level][i].max * 1000){
-            // win
-          }
-          else if(scores[level][i]  > levels[level][i].max * 1000){
+          else if(scores[level][0] + scores[level][1] + scores[level][2] + scores[level][3] > 14*1000){
             burnt = 1;
             win = 0;
+          }
+          
+        }
+        
+        else if(level == 7){
+          
+          if((scores[7][0] + scores[7][2] + scores[7][4]) < 8 * 1000 
+          || (scores[7][0] + scores[7][2] + scores[7][4]) > 10 * 1000
+          || (scores[7][1] + scores[7][3]) < 6 * 1000
+          || (scores[7][1] + scores[7][3]) > 8 * 1000
+          ){
+            burnt = 1;
+            tooraw = 1;
+            win = 0;
+          }
+        }
+        
+        else if(level == 8){
+          if((Math.round(scores[8][0] * 7.7 / 1000) * 1000 < 100 * 1000) || ((Math.round(scores[8][0] * 7.7 / 1000) * 1000 > 110 * 1000))){
+            burnt = 1;
+            tooraw = 1;
+            win = 0;
+          }
+        }
+        
+        else if(level == 9){
+          if((scores[9][0]/1000).toFixed(1) == "2.0"){
+            win = 1;
+          }
+          else {
+            burnt = 1;
+            tooraw = 1;
+            win = 0;
+          }
+        }
+        
+        else {
+          for(i in scores[level]){
+            if(scores[level][i] < levels[level][i].min * 1000){
+              tooraw = 1;
+              win = 0;
+            }
+            else if(scores[level][i] >= levels[level][i].min * 1000 && scores[level][i] <= levels[level][i].max * 1000){
+              // win
+            }
+            else if(scores[level][i]  > levels[level][i].max * 1000){
+              burnt = 1;
+              win = 0;
+            }
+          }
+        }
+      
+      }
+      
+      else {
+
+        if(level == 5){
+          if(scores[level][0] > 0 || fry > 0) burnt = 1;
+          else burnt = 0;
+        }
+        
+        else if(level == 6){
+          if(scores[level][0] + scores[level][1] + scores[level][2] + scores[level][3] < 12*1000){
+            tooraw = 1;
+            win = 0;
+          }
+          else if(scores[level][0] + scores[level][1] + scores[level][2] + scores[level][3] > 13*1000){
+            burnt = 1;
+            win = 0;
+          }
+          if(!scores[level].find(a=>a>=2*1000 && a<=3*1000) && !scores[level].find(a=>a>=5*1000 && a<=6*1000)){
+            burnt = 1;
+            tooraw = 1;
+            win = 0;
+          }
+        }
+        
+        else if(level == 7){
+          
+          if((scores[7][0] + scores[7][2] + scores[7][4]) < 9 * 1000 
+          || (scores[7][0] + scores[7][2] + scores[7][4]) > 10 * 1000
+          || (scores[7][1] + scores[7][3]) < 7 * 1000
+          || (scores[7][1] + scores[7][3]) > 8 * 1000
+          ){
+            burnt = 1;
+            tooraw = 1;
+            win = 0;
+          }
+        }
+        
+        else if(level == 8){
+          if((Math.round(scores[8][0] * 7.7 / 1000) * 1000 < 100 * 1000) || ((Math.round(scores[8][0] * 7.7 / 1000) * 1000 > 105 * 1000))){
+            burnt = 1;
+            tooraw = 1;
+            win = 0;
+          }
+        }
+        
+        else if(level == 9){
+          if((scores[9][0]/1000).toFixed(1) == "2.0"){
+            win = 1;
+          }
+          else {
+            burnt = 1;
+            tooraw = 1;
+            win = 0;
+          }
+        }
+        
+        else {
+          for(i in scores[level]){
+            if(scores[level][i] < levels[level][i].min * 1000){
+              tooraw = 1;
+              win = 0;
+            }
+            else if(scores[level][i] >= levels[level][i].min * 1000 && scores[level][i] <= levels[level][i].max * 1000){
+              // win
+            }
+            else if(scores[level][i]  > levels[level][i].max * 1000){
+              burnt = 1;
+              win = 0;
+            }
           }
         }
       }
@@ -395,6 +524,13 @@ onclick = (e) => {
       ready = 0;
       setTimeout(()=>{ready = 1}, 200);
     }
+    
+    else if(state == 99){
+      state = 2;
+      sawhelp = 1;
+      ready = 0;
+      setTimeout(()=>{ready = 1}, 200);
+    }
   }
 }
 
@@ -402,19 +538,17 @@ onclick = (e) => {
 
 onmousedown = ontouchstart = () => {
  
-  if(ready && !white && !showtime && !showscore && !flip && step < levels[level].length){
+  if(ready && !white && state == 2 && !showtime && !showscore && !flip && step < levels[level].length){
  
     if(level == 7 && scores[7][0]){
       timer = (new Date()) - timerb0 + 10;
       scores[level][step] = timer;
-      console.log(scores[7]);
       step++;
     }
     
     mdtimeout = setTimeout(()=>{
       md = 1;
       timer0 = new Date();
-      console.log(scores[7]);
     }, 34);
     
   }
@@ -422,11 +556,10 @@ onmousedown = ontouchstart = () => {
 
 
 onmouseup = ontouchend = () => {
-  if(state == 2 && !white && !showtime && !showscore && !flip && step < levels[level].length){
+  if(state == 2 && md && !white && !showtime && !showscore && !flip && step < levels[level].length){
     clearTimeout(mdtimeout);
     if(md) released = 1;
     timer = (new Date()) - timer0 + 10;
-    console.log(scores[7]);
     scores[level][step] = timer;
     md = 0;
     draw();
@@ -440,6 +573,7 @@ onmouseup = ontouchend = () => {
     // Score
     if(state == 2 && step == levels[level].length){
       showtime = 1;
+      ready = 0;
       draw();
       setTimeout(()=>{
         showscore = 1;
@@ -448,6 +582,7 @@ onmouseup = ontouchend = () => {
       
       setTimeout(()=>{
         white = 1;
+        ready = 0;
         scores[level] = [];
         draw();
       }, 1000 + scores[level].length * 500 + 2000);
@@ -456,6 +591,9 @@ onmouseup = ontouchend = () => {
         state = 2;
         if(win == 1) {
           level ++;
+        }
+        else {
+          fail++;
         }
         waittimer = 0;
         fry = 0;
@@ -467,13 +605,15 @@ onmouseup = ontouchend = () => {
         step = 0;
         ready = 0;
         setTimeout(()=>{ready = 1}, 200);
+        timer0 = new Date();
+        timerb0 = new Date();
+        md = 0;
         draw();
       }, 1000 + scores[level].length * 500 + 2500);
     }
   }
   if(level == 7){
     timerb0 = new Date();
-    console.log(scores[7]);
   }
 }
 
@@ -524,6 +664,7 @@ setInterval(()=>{
         ready = 0;
         setTimeout(()=>{ready = 1}, 200);
         draw();
+
       }, 1000 + scores[level].length * 500 + 2500); 
     }
   }
