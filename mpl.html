@@ -1,0 +1,427 @@
+<!doctype html>
+<head>
+<meta name="monetization" content="$pay.stronghold.co/1a1fbf27169a5334158b2c531b946427ceb">
+<meta name="viewport" content="width=device-width, initial-scale=0.5" />
+</head>
+<title>IT'S TOO RAW!</title>
+<img src=bonus.png id=bonus hidden>
+<img src=easymode.png id=easymode hidden>
+<img src=coil.png id=coil hidden>
+<img src=gas1.png id=gas1 hidden>
+<img src=gas2.png id=gas2 hidden>
+<img src=gas9.png id=gas9 hidden>
+<img src=ipfs.png id=ipfs hidden>
+<img src=mpl.png id=mpl hidden>
+<img src=near.png id=near hidden>
+<img src=pan2.png id=pan2 hidden>
+<img src=pan1.png id=pan1 hidden>
+<img src=panb1.png id=panb1 hidden>
+<img src=panc1.png id=panc1 hidden>
+<img src=panc2.png id=panc2 hidden>
+<img src=play.png id=play hidden>
+<img src=smoke1.png id=smoke1 hidden>
+<img src=smoke1b.png id=smoke1b hidden>
+<img src=smoke2.png id=smoke2 hidden>
+<img src=smoke2b.png id=smoke2b hidden>
+<img src=start.png id=start hidden>
+<img src=title.png id=title hidden>
+<img src=tooraw.png id=toorawimg hidden>
+<img src=toorawburnt.png id=toorawburntimg hidden>
+<img src=burnt.png id=burntimg hidden>
+<img src=ok.png id=ok hidden>
+<img src=hand.png id=hand hidden>
+<img src=rules1.png id=rules1 hidden>
+<img src=rules2.png id=rules2 hidden>
+<img src=rules3.png id=rules3 hidden>
+<img src=rules4.png id=rules4 hidden>
+<img src=rules5.png id=rules5 hidden>
+<img src=rules6.png id=rules6 hidden>
+<img src=rules7.png id=rules7 hidden>
+<img src=rules8.png id=rules8 hidden>
+<img src=rules9.png id=rules9 hidden>
+<img src=rules1e.png id=rules1e hidden>
+<img src=rules2e.png id=rules2e hidden>
+<img src=rules3e.png id=rules3e hidden>
+<img src=rules4e.png id=rules4e hidden>
+<img src=rules5e.png id=rules5e hidden>
+<img src=rules6e.png id=rules6e hidden>
+<img src=rules7e.png id=rules7e hidden>
+<img src=rules8e.png id=rules8e hidden>
+<img src=rules9e.png id=rules9e hidden>
+<img src=rulesmpl1.png id=rulesmpl1 hidden>
+<img src=food1.png id=food1 hidden>
+<img src=foodmpl1.png id=foodmpl1 hidden>
+<img src=food2.png id=food2 hidden>
+<img src=food3.png id=food3 hidden>
+<img src=food4.png id=food4 hidden>
+<img src=food5.png id=food5 hidden>
+<img src=food6.png id=food6 hidden>
+<img src=food7.png id=food7 hidden>
+<img src=food8.png id=food8 hidden>
+<img src=food9.png id=food9 hidden>
+<img src=foodend1.png id=foodend1 hidden>
+<img src=foodend2.png id=foodend2 hidden>
+<img src=foodend3.png id=foodend3 hidden>
+<img src=foodend4.png id=foodend4 hidden>
+<img src=foodend5.png id=foodend5 hidden>
+<img src=foodend6.png id=foodend6 hidden>
+<img src=foodend7.png id=foodend7 hidden>
+<img src=foodend8.png id=foodend8 hidden>
+<img src=foodend9.png id=foodend9 hidden>
+<img src=end.png id=end hidden>
+<img src=fails.png id=fails hidden>
+<img src=help.png id=help hidden>
+
+<body style="overflow:hidden;font-family:pangolin">.
+<canvas id=a style="position:fixed;top:50%;left:50%;transform:translateX(-50%)translateY(-50%);cursor:pointer;width:100vmin;height=100vmin;"></canvas>
+
+<script>
+easy = +localStorage["raweasy"] || 0;
+state = 2;
+white = 0;
+win = 0;
+level = 1;
+fry = 0;
+released = 0;
+showtime = 0;
+showscore = 0;
+step = 0;
+md = 0;
+mdtimeout = 0;
+timer0 = 0;
+timerb0 = 0;
+timer = 0;
+ready = 1;
+tooraw = 0;
+burnt = 0;
+waittimer = 0;
+fail = 0;
+sawhelp = 0;
+
+if(!level) level = 1;
+
+levels = [
+  , // 0: no
+  [{min: 54, max: 56}], // 1: 9-10s
+
+];
+
+if(easy){
+        
+  levels = [
+  
+    , // 0: no
+    [{min:60, max: 400}], 
+
+  ];
+
+}
+
+variants = [
+  0, // 0: no
+  0, // 0: no
+]
+
+scores = [
+  , // 0: no
+  [], // 1
+  
+];
+
+anim = 1;
+setAnim = () => {
+  anim = 3 - anim;
+  draw();
+  setTimeout(setAnim, 100 + Math.random() * 200);
+}
+
+
+onload = () => {
+  W = a.width = 600;
+  H = a.height = 600;
+  c = a.getContext("2d");
+  state = 2; // title
+  draw();
+  
+
+  setAnim();
+
+}
+
+draw = () => {
+
+  a.width ^= 0;
+  
+  // end
+  if(level == 2){
+    location = "bonuses.html";
+  }
+  
+  // Levels
+  else if(state == 2 && !white){
+    
+    c.drawImage(window["rulesmpl" + level], W/2 - 250, H/2 - 260);
+    c.font = '28px pangolin';
+    c.textAlign = 'center';
+    c.fillText((Math.round((dist)/10) * 10).toFixed(0) + "-" + (Math.round((dist + 20)/10) * 10).toFixed(0), 230, 95);
+    levels[1].min = +((Math.round((dist)/10) * 10).toFixed(0));
+    levels[1].max = +((Math.round((dist + 20)/10) * 10).toFixed(0));
+    
+    // Idle
+    if(md == 0 && !flip){
+      c.drawImage(pan1, W/2 - 250, H/2-40);
+      c.drawImage(window["foodmpl" + level], W/2 - 30, H/2 + 10 + (level == 5 ? -40 : 0));
+      
+      c.drawImage(pan2, W/2 - 250, H/2-40);
+    }
+    
+    console.log(md);
+    
+    // Pressed
+    if(md && !flip) {
+      c.drawImage(pan1, W/2 - 250, H/2 + 20);
+      c.drawImage(window["foodmpl" + level], W/2 - 30, H/2 + 70  + (level == 5 ? -40 : 0) + (level == 9 ? -60 : 0));
+      c.drawImage(pan2, W/2 - 250, H/2 + 20);
+      c.drawImage(window["smoke" + anim + (level == 8 ? "b" : "")], W/2 - 300, H/2 - 100 + (level == 8 ? -50 : 0));
+    }
+    
+    // 1....2.....3
+    if(md && !showscore && !flip && step == 0){
+      timer = (new Date() - timer0);
+      if(timer < 10000){
+        c.font = '50px pangolin';
+        c.globalAlpha = Math.max(((2 / (timer / 1000))), 0);
+        c.fillText((timer * 2 /1000).toFixed(level == 8 ? 0 : level == 9 ? 1 : 0) + (level == 8 ? " °C" : " M km"), 150, 250);
+        c.globalAlpha = 1;
+      }
+    }
+    
+    // Show time 
+    if(showtime && !showscore && !flip){
+      c.font = '50px pangolin';
+      c.globalAlpha = 1;
+      c.fillText((timer * 2 /1000).toFixed(level == 8 ? 0 : level == 9 ? 1 : 0) + (level == 8 ? " °C" : " M km"), 150, 250);
+      
+      c.textAlign = 'start';
+    }
+    
+    // Show score
+    if(showscore && !flip){
+              
+      tooraw = 0;
+      burnt = 0;
+    
+      if(Math.round(scores[level][0] / 1000) < levels[level][0].min || Math.round(scores[level][0] / 1000) > levels[level][0].max){
+        tooraw = 1;
+        burnt = 1;
+        win = 0;
+      }
+  
+  
+      if(tooraw && burnt) {
+        c.drawImage(toorawburntimg, W/2 - 160, H/2 - 100 + (level == 8 ? -30 : 0));
+      }
+      
+      else if(!tooraw && !burnt) {
+        win = 1;
+        c.drawImage(ok, W/2 - 100, H/2 - 100 + (level == 8 ? -30 : 0));
+      }
+
+      c.drawImage(hand, W/2 + 200, H/2 - 100);
+    }
+    
+    // flip animation (default)
+    if(!md && flip && (!variants[level] || level == 7)){
+      if(level != 8) c.drawImage(pan1, W/2 - 250, H/2 - 60);
+      else c.drawImage(pan1, W/2 - 250, H/2 - 60);
+      c.save();
+      c.translate(W/2 + 110, H/2 - 30);
+      c.rotate((flip-20+120)/6 + 30);
+      c.drawImage(window["food" + level], 0, 0);
+      c.globalAlpha = fry / 100;
+      c.drawImage(window["foodend" + level], 0, 0);
+      c.globalAlpha = 1;
+      c.restore();
+      if(level != 8) c.drawImage(pan2, W/2 - 250, H/2 - 60);
+    }
+    
+    // swap animation
+    if(!md && flip && (variants[level] == "swap" || variants[level] == "total")){
+      if(level != 8) c.drawImage(pan1, W/2 - 250, H/2 - 60);
+      else c.drawImage(pan1, W/2 - 250, H/2 - 60);
+      c.save();
+      c.translate(W/2 + 110, H/2 - 30);
+      if(flip > 9){
+        c.drawImage(window["food" + level], (20-flip) * 10, -(20-flip) * 10);
+        c.globalAlpha = fry / 100;
+        c.drawImage(window["foodend" + level], (20-flip) * 10, -(20-flip) * 10);
+      }
+      if(flip <= 9){
+        c.drawImage(window["food" + level], -220 + (9-flip) * 10, -90 + (9-flip) * 10);
+        fry = 0;
+      }
+      c.globalAlpha = 1;
+      c.restore();
+      if(level != 8) c.drawImage(pan2, W/2 - 250, H/2 - 60);
+    }
+    
+  }
+    
+}
+
+onclick = (e) => {
+
+  if(!showtime && !white && !showscore && !flip){
+    
+    X = e.pageX;
+    Y = e.pageY;
+    
+    // Title
+    if(state == 0){
+      state = 2;
+      fry = 0;
+      released = 0;
+      showscore = 0;
+      step = 0;
+      draw();
+      md = 0;
+      ready = 0;
+      setTimeout(()=>{ready = 1}, 200);
+    }
+    
+    else if(state == 99){
+      state = 2;
+      sawhelp = 1;
+      ready = 0;
+      setTimeout(()=>{ready = 1}, 200);
+    }
+  }
+}
+
+
+
+onmousedown = ontouchstart = () => {
+ 
+  if(ready && !white && state == 2 && !showtime && !showscore && !flip && step < levels[level].length){
+
+    
+    mdtimeout = setTimeout(()=>{
+      md = 1;
+      timer0 = new Date();
+    }, 34);
+    
+  }
+}
+
+
+onmouseup = ontouchend = () => {
+  if(state == 2 && md && !white && !showtime && !showscore && !flip && step < levels[level].length){
+    clearTimeout(mdtimeout);
+    if(md) released = 1;
+    timer = (new Date()) - timer0 + 10;
+    scores[level][step] = timer * 2;
+    md = 0;
+    draw();
+    step++;
+    
+    // Flip
+    if(state == 2 && step < levels[level].length){
+      flip = 20;
+    }
+    
+    // Score
+    if(state == 2 && step == levels[level].length){
+      showtime = 1;
+      ready = 0;
+      draw();
+      setTimeout(()=>{
+        showscore = 1;
+        draw();
+      }, 1000 + scores[level].length * 500);
+      
+      setTimeout(()=>{
+        white = 1;
+        ready = 0;
+        scores[level] = [];
+        draw();
+      }, 1000 + scores[level].length * 500 + 2000);
+      
+      setTimeout(()=>{
+        state = 2;
+        if(win == 1) {
+          level ++;
+        }
+        else {
+          fail++;
+        }
+        waittimer = 0;
+        fry = 0;
+        released = 0;
+        showtime = 0;
+        showscore = 0;
+        white = 0;
+        md = 0;
+        step = 0;
+        ready = 0;
+        setTimeout(()=>{ready = 1}, 200);
+        timer0 = new Date();
+        timerb0 = new Date();
+        md = 0;
+        draw();
+      }, 1000 + scores[level].length * 500 + 2500);
+    }
+  }
+  if(level == 7){
+    timerb0 = new Date();
+  }
+}
+
+oncontextmenu = (e) => {
+  e.preventDefault();
+  return false;
+}
+
+
+fry = 0;
+setInterval(()=>{
+  if(state == 2 && md && !flip){
+    fry +=4;
+    draw();
+  }
+},33);
+
+flip = 0;
+dist = 230;
+distf = 100;
+setInterval(()=>{
+  distf ++;
+  dist = 230 + Math.cos(distf/150) * 170;
+  if(flip > 0){
+    flip--;
+    if(flip == 0){ fry = variants[level] ? 0 : 10; }
+    draw();
+  }
+},33);
+
+
+</script>
+
+<style>
+@font-face {
+  font-family: pangolin;
+  src: url(pangolin.ttf);
+}
+
+* {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+*:focus {
+    outline: none !important;
+}
+</style>

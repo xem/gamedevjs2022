@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <head>
 <meta name="monetization" content="$pay.stronghold.co/1a1fbf27169a5334158b2c531b946427ceb">
 </head>
@@ -19,6 +19,7 @@
     color: rgb(0,128,255);
     font-family: pangolin;
     text-decoration: none;
+    cursor: pointer;
 }
 *:focus {
     outline: none !important;
@@ -26,37 +27,30 @@
 </style>
 <center>
   <br>
-  <h1>IT'S TOO RAW - BONUSES</h1>
+  <h1>IT'S TOO RAW - IPFS BONUS</h1>
+  <br>
+  Your best score is: <b id=fails>???</b> attempts.
   <br>
   <br>
+  <h3>Download the game on IPFS network</h3>
   
-  <a href="coil.html"><h2>Coil bonus</h2>
-  Log in to Coil to unlock the easy mode
-  </a>
-  
-  
-  <br>
-  <br>
-  <a href="near.html"><h2>NEAR bonus:</h2>
-  Use your NEAR wallet to unlock skins and extra levels
-  </a>
-  
+  <a href="https://ipfs.infura.io/ipfs/QmNXL6yJjR94sMfo5Fq5NsqMM9YDNwccDskQWfSfvZR9wP">DOWNLOAD</a>
   
   <br>
-  <br>
-  <a href="ipfs.html"><h2>IPFS bonus:</h2>
-  Use IPFS to record your best score and download the game
-  </a>
   
-  <br>
-  <br>
-  <a href="mpl.html"><h2>MPL bonus:</h2>
-  Mini-game: send a football on Mars with the power of your frying pan
-  </a>
+  <h3>IPFS leaderboard (WIP):</h3>
   
-  <br><br>
+  <iframe id=ifr src="//xem.github.io/gamedevjs2022/ipfs" width=600 height=300></iframe>
+ 
   <br><br>
   
+  <a href="bonuses.html">Return to the bonuses</a>
+  <br><br>
   <a href="index.html">Return to the game</a>
+  
+  <script>
+  fails.innerHTML = localStorage["rawbest"] || "???";
+  ifr.src = "//xem.github.io/gamedevjs2022/ipfs#" + btoa(localStorage["rawbest"] || "???")
+  </script>
   
 </center>

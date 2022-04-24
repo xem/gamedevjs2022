@@ -75,6 +75,7 @@
 <a href="bonuses.html" target=_blank style="position:fixed;bottom:-4px;left:50%;transform:translateX(-50%)"><img src="bonuses.png"></a>
 
 <script>
+bestscore = +localStorage["rawbest"] || 999;
 easy = +localStorage["raweasy"] || 0;
 state = 0;
 white = 0;
@@ -197,6 +198,7 @@ draw = () => {
       c.font = '30px pangolin';
       c.fillText(fail, 95, H - 18);
     }
+    localStorage["rawbest"] = fail;
   }
 
   // Title
