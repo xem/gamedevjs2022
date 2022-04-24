@@ -1,5 +1,8 @@
 ﻿<!doctype html>
+<head>
+<meta name="monetization" content="$pay.stronghold.co/1a1fbf27169a5334158b2c531b946427ceb">
 <meta name="viewport" content="width=device-width, initial-scale=0.5" />
+</head>
 <title>IT'S TOO RAW!</title>
 <img src=bonus.png id=bonus hidden>
 <img src=easymode.png id=easymode hidden>
@@ -68,10 +71,11 @@
 <img src=help.png id=help hidden>
 
 <body style="overflow:hidden;font-family:pangolin">.
-<canvas id=a style="position:fixed;top:50%;left:50%;transform:translateX(-50%)translateY(-50%);cursor:pointer;width:100vmin;height=100vmin;">
+<canvas id=a style="position:fixed;top:50%;left:50%;transform:translateX(-50%)translateY(-50%);cursor:pointer;width:100vmin;height=100vmin;"></canvas>
+<a href="bonuses.html" target=_blank style="position:fixed;bottom:-4px;left:50%;transform:translateX(-50%)"><img src="bonuses.png"></a>
 
 <script>
-easy = 1;
+easy = +localStorage["raweasy"] || 0;
 state = 0;
 white = 0;
 win = 0;
@@ -178,7 +182,7 @@ onload = () => {
 draw = () => {
 
   a.width ^= 0;
-  
+
   // Help
   if(!easy && fail == 5 && level < 9 && !sawhelp){
     state = 99;
@@ -192,9 +196,6 @@ draw = () => {
       c.drawImage(fails, 10, H - 45);
       c.font = '30px pangolin';
       c.fillText(fail, 95, H - 18);
-    }
-    if(easy){
-      c.drawImage(easymode, 10, H - 75);
     }
   }
 
@@ -312,8 +313,9 @@ draw = () => {
       if(easy){
       
         if(level == 5){
-          if(scores[level][0] > 0 || fry > 0) burnt = 1;
-          else burnt = 0;
+          if(scores[level][0] > 0 || fry > 0) { burnt = 1; win = 0 }
+          else { burnt = 0; win = 1}
+          console.log(scores[level], burnt);
         }
         
         else if(level == 6){
@@ -381,8 +383,9 @@ draw = () => {
       else {
 
         if(level == 5){
-          if(scores[level][0] > 0 || fry > 0) burnt = 1;
-          else burnt = 0;
+          if(scores[level][0] > 0 || fry > 0) { burnt = 1; win = 0 }
+          else { burnt = 0; win = 1}
+          console.log(scores[level], burnt);
         }
         
         else if(level == 6){
@@ -503,6 +506,12 @@ draw = () => {
     }
     
   }
+  
+    
+  if(easy){
+    c.drawImage(easymode, 10, H - 75);
+  }
+    
 }
 
 onclick = (e) => {
