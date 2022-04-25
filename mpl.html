@@ -71,6 +71,8 @@
 <img src=end.png id=end hidden>
 <img src=fails.png id=fails hidden>
 <img src=help.png id=help hidden>
+<img src=tomars.png id=tomars hidden>
+<img src=onmars.png id=onmars hidden>
 
 <body style="overflow:hidden;font-family:pangolin">.
 <canvas id=a style="position:fixed;top:50%;left:50%;transform:translateX(-50%)translateY(-50%);cursor:pointer;width:100vmin;height=100vmin;"></canvas>
@@ -151,6 +153,7 @@ onload = () => {
 draw = () => {
 
   a.width ^= 0;
+  c.fillStyle = "#000";
   
   // end
   if(level == 2){
@@ -191,16 +194,22 @@ draw = () => {
       if(timer < 10000){
         c.font = '50px pangolin';
         c.globalAlpha = Math.max(((2 / (timer / 1000))), 0);
-        c.fillText((timer * 2 /1000).toFixed(level == 8 ? 0 : level == 9 ? 1 : 0) + (level == 8 ? " °C" : " M km"), 150, 250);
+        c.fillText((timer * 3 /1000).toFixed(level == 8 ? 0 : level == 9 ? 1 : 0) + (level == 8 ? " °C" : " M km"), 150, 250);
         c.globalAlpha = 1;
       }
     }
     
     // Show time 
     if(showtime && !showscore && !flip){
+      a.width ^= 0;
+      c.drawImage(tomars, W/2 - 220, H/2 - 240);
       c.font = '50px pangolin';
+      c.fillStyle = "red";
       c.globalAlpha = 1;
-      c.fillText((timer * 2 /1000).toFixed(level == 8 ? 0 : level == 9 ? 1 : 0) + (level == 8 ? " °C" : " M km"), 150, 250);
+      c.fillText((timer * 3 /1000).toFixed(level == 8 ? 0 : level == 9 ? 1 : 0) + (level == 8 ? " °C" : " M km"), 100, 130);
+      c.font = '30px pangolin';
+      c.fillText("(Goal: " + levels[1].min + "-" + levels[1].max + ")", 100, 170);
+      
       
       c.textAlign = 'start';
     }
@@ -220,14 +229,15 @@ draw = () => {
   
       if(tooraw && burnt) {
         c.drawImage(toorawburntimg, W/2 - 160, H/2 - 100 + (level == 8 ? -30 : 0));
+        c.drawImage(hand, W/2 + 200, H/2 - 100);
       }
       
       else if(!tooraw && !burnt) {
         win = 1;
-        c.drawImage(ok, W/2 - 100, H/2 - 100 + (level == 8 ? -30 : 0));
+        a.width ^= 0;
+        c.drawImage(onmars, W/2 - 220, H/2 - 240);
       }
 
-      c.drawImage(hand, W/2 + 200, H/2 - 100);
     }
     
     // flip animation (default)
@@ -319,7 +329,7 @@ onmouseup = ontouchend = () => {
     clearTimeout(mdtimeout);
     if(md) released = 1;
     timer = (new Date()) - timer0 + 10;
-    scores[level][step] = timer * 2;
+    scores[level][step] = timer * 3;
     md = 0;
     draw();
     step++;
@@ -337,14 +347,14 @@ onmouseup = ontouchend = () => {
       setTimeout(()=>{
         showscore = 1;
         draw();
-      }, 1000 + scores[level].length * 500);
+      }, 6000 + scores[level].length * 500);
       
       setTimeout(()=>{
         white = 1;
         ready = 0;
         scores[level] = [];
         draw();
-      }, 1000 + scores[level].length * 500 + 2000);
+      }, 12000 + scores[level].length * 500 + 2000);
       
       setTimeout(()=>{
         state = 2;
@@ -368,7 +378,7 @@ onmouseup = ontouchend = () => {
         timerb0 = new Date();
         md = 0;
         draw();
-      }, 1000 + scores[level].length * 500 + 2500);
+      }, 12000 + scores[level].length * 500 + 2500);
     }
   }
   if(level == 7){
@@ -394,7 +404,7 @@ flip = 0;
 dist = 230;
 distf = 100;
 setInterval(()=>{
-  distf ++;
+  if(!showtime && !showscore) distf ++;
   dist = 230 + Math.cos(distf/150) * 170;
   if(flip > 0){
     flip--;
