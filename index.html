@@ -72,7 +72,7 @@
 
 <body style="overflow:hidden;font-family:pangolin">.
 <canvas id=a style="position:fixed;top:50%;left:50%;transform:translateX(-50%)translateY(-50%);cursor:pointer;width:100vmin;height=100vmin;"></canvas>
-<a href="bonuses.html" target=_blank style="position:fixed;bottom:-4px;left:50%;transform:translateX(-50%)"><img src="bonuses.png"></a>
+<a id=bonusesbutton href="bonuses.html" target=_blank style="position:fixed;bottom:-4px;left:50%;transform:translateX(-50%)"><img src="bonuses.png"></a>
 
 <script>
 bestscore = +localStorage["rawbest"] || 999;
@@ -228,7 +228,7 @@ draw = () => {
       c.fillText(fail, 95, H - 18);
     }
     if(easy){
-      c.drawImage(easymode, 10, H - 75);
+      c.drawImage(easymode, W - 150, H - 45);
     }
     
     // Idle
@@ -511,7 +511,7 @@ draw = () => {
   
     
   if(easy){
-    c.drawImage(easymode, 10, H - 75);
+    c.drawImage(easymode, W - 150, H - 45);
   }
     
 }
@@ -753,4 +753,6 @@ music = () => mm([[0,19],[8,19],[1,18],[2,19],[4,16],[6,19],[7,18],[10,14]],400,
 *:focus {
     outline: none !important;
 }
+#bonusesbutton { opacity: 0.5; }
+#bonusesbutton:hover { opacity: 1; }
 </style>
