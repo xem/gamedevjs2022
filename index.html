@@ -534,6 +534,19 @@ onclick = (e) => {
       md = 0;
       ready = 0;
       setTimeout(()=>{ready = 1}, 200);
+      music();
+      setInterval(music, 3600);
+      
+      N = new AudioContext();
+      bufferSize = 4096;
+      whiteNoise = N.createScriptProcessor(bufferSize, 1, 1);
+      whiteNoise.onaudioprocess = function(e) {
+          var output = e.outputBuffer.getChannelData(0);
+          for (var i = 0; i < bufferSize; i++) {
+              output[i] = (Math.random() * 2 - 1)/20;
+          }
+      }
+      
     }
     
     else if(state == 99){
@@ -562,12 +575,16 @@ onmousedown = ontouchstart = () => {
       timer0 = new Date();
     }, 34);
     
+    whiteNoise.connect(N.destination);
   }
 }
 
 
 onmouseup = ontouchend = () => {
   if(state == 2 && md && !white && !showtime && !showscore && !flip && step < levels[level].length){
+  
+    whiteNoise.disconnect(N.destination);
+     
     clearTimeout(mdtimeout);
     if(md) released = 1;
     timer = (new Date()) - timer0 + 10;
@@ -691,6 +708,31 @@ setInterval(()=>{
     draw();
   }
 },33);
+
+
+mm=(notes,center,duration,decaystart,decayduration,interval,volume,waveform,i)=>{
+  with(A=new AudioContext)
+    with(G=createGain())
+      for(i of notes){
+        with(O=createOscillator()){
+          connect(G),
+          G.connect(destination),
+          start(i[0]*interval),
+          frequency.setValueAtTime(center*1.06**(13-i[1]),i[0]*interval),
+          type=waveform,
+          gain.setValueAtTime(volume,i[0]*interval),
+          gain.setTargetAtTime(1e-5,i[0]*interval+decaystart,decayduration),
+          stop(i[0]*interval+duration);
+        }
+     }
+}
+
+
+
+music = () => mm([[0,19],[8,19],[1,18],[2,19],[4,16],[6,19],[7,18],[10,14]],400,.29,.28,.005,.3,.1,'sine');
+
+
+
 </script>
 
 <style>
