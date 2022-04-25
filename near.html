@@ -40,12 +40,7 @@
   <button onclick="localStorage.clear();location=location">Log out</button>
   <br>
   <br>
-  <h3>Your balance: <span id=balance>...</span> NEAR</h3>
-  <br>
-  <br>
-  <br>
   <h3>Change skins:<h3>
-  <br>
   <p><button id=buy1>Default</button>
   <button id=buy2>Campfire</button>
   <button id=buy3>THE EYE</button>
@@ -93,17 +88,16 @@ login.onclick = async () => {
     console.log("logged");
     account = await wallet.account("xem06.near");
     console.log(b = await account.getAccountBalance());
-    balance.innerHTML = nearApi.utils.format.formatNearAmount(b.available,2);
   }
   
 }
 
 // Buy
-buy1.onclick = localStorage["rawgas"] = "";
+buy1.onclick = () => { localStorage["rawgas"] = ""; buy1.style.background = "#89ff89"; buy2.style.background = "none"; buy3.style.background = "none" }
 
-buy2.onclick = localStorage["rawgas"] = "b";
+buy2.onclick = () => { localStorage["rawgas"] = "b"; buy1.style.background = "none"; buy2.style.background = "#89ff89"; buy3.style.background = "none" }
 
-buy3.onclick = localStorage["rawgas"] = "c";
+buy3.onclick = () => { localStorage["rawgas"] = "c"; buy1.style.background = "none"; buy2.style.background = "none"; buy3.style.background = "#89ff89" }
 
 </script>
   
