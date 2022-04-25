@@ -1,0 +1,123 @@
+<!doctype html>
+<script src="https://js13kgames.com/src/near-api-js.js"></script>
+<head>
+<meta name="monetization" content="$pay.stronghold.co/1a1fbf27169a5334158b2c531b946427ceb">
+</head>
+<style>
+@font-face {
+  font-family: pangolin;
+  src: url(pangolin.ttf);
+}
+
+* {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    color: rgb(0,128,255);
+    font-family: pangolin;
+    text-decoration: none;
+    cursor: pointer;
+}
+*:focus {
+    outline: none !important;
+}
+</style>
+<center>
+  <br>
+  <h1>IT'S TOO RAW - NEAR SHOP</h1>
+  <br>
+  <br>
+  
+  <div id=start>
+  <p><button id=login>Log in to your NEAR wallet</button>
+  </div>
+
+  <div id=shop style="display: none">
+  <button onclick="localStorage.clear();location=location">Log out</button>
+  <br>
+  <br>
+  <h3>Your balance: <span id=balance>...</span> NEAR</h3>
+  <br>
+  <br>
+  <br>
+  <h3>Change skins:<h3>
+  <br>
+  <p><button id=buy1>Default</button>
+  <button id=buy2>Campfire</button>
+  <button id=buy3>THE EYE</button>
+  <br>
+  <br>
+  <br>
+  <h3>Buy extra levels</h3>
+  <p>(Work in progress... come back after the jam for more levels)</p>
+</div>
+
+<script>
+nearAPI = nearApi;
+
+// Login
+login.onclick = async () => {
+  
+  const { keyStores, connect, WalletConnection } = nearAPI;
+  
+  keyStore = new keyStores.BrowserLocalStorageKeyStore();
+
+  config = {
+    networkId: "mainnet",
+    keyStore, // optional if not signing transactions
+    contractName: "xem06.near",
+    nodeUrl: "https://rpc.mainnet.near.org",
+    walletUrl: "https://wallet.mainnet.near.org",
+    helperUrl: "https://helper.mainnet.near.org",
+    explorerUrl: "https://explorer.mainnet.near.org",
+  };
+  
+  // connect to NEAR
+  near = await connect(config);
+
+  // create wallet connection
+  wallet = new WalletConnection(near);
+
+  wallet.requestSignIn(
+    "xem06.near", // contract requesting access
+    "IT'S TOO RAW", // optional
+  );
+  
+  if(wallet.isSignedIn()) {
+    start.remove();
+    shop.style.display = "block";
+    console.log("logged");
+    account = await wallet.account("xem06.near");
+    console.log(b = await account.getAccountBalance());
+    balance.innerHTML = nearApi.utils.format.formatNearAmount(b.available,2);
+  }
+  
+}
+
+// Buy
+buy1.onclick = localStorage["rawgas"] = "";
+
+buy2.onclick = localStorage["rawgas"] = "b";
+
+buy3.onclick = localStorage["rawgas"] = "c";
+
+</script>
+  
+  <br><br>
+  <br><br>
+  <br><br>
+  
+  <a href="bonuses.html">Return to the bonuses</a>
+  <br><br>
+  <br><br>
+  <a href="index.html">Return to the game</a>
+  
+  <script>
+    
+  </script>
+  
+</center>

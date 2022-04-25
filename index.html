@@ -8,7 +8,11 @@
 <img src=easymode.png id=easymode hidden>
 <img src=coil.png id=coil hidden>
 <img src=gas1.png id=gas1 hidden>
+<img src=gas1b.png id=gas1b hidden>
+<img src=gas1c.png id=gas1c hidden>
 <img src=gas2.png id=gas2 hidden>
+<img src=gas2b.png id=gas2b hidden>
+<img src=gas2c.png id=gas2c hidden>
 <img src=gas9.png id=gas9 hidden>
 <img src=ipfs.png id=ipfs hidden>
 <img src=mpl.png id=mpl hidden>
@@ -77,6 +81,7 @@
 <script>
 bestscore = +localStorage["rawbest"] || 999;
 easy = +localStorage["raweasy"] || 0;
+gastype = localStorage["rawgas"] || "";
 state = 0;
 white = 0;
 win = 0;
@@ -97,6 +102,7 @@ burnt = 0;
 waittimer = 0;
 fail = 0;
 sawhelp = 0;
+
 
 if(!level) level = 1;
 
@@ -198,7 +204,7 @@ draw = () => {
       c.font = '30px pangolin';
       c.fillText(fail, 95, H - 18);
     }
-    localStorage["rawbest"] = fail;
+    localStorage["rawbest"] = Math.min(+(localStorage["rawbest"] || 0), fail);
   }
 
   // Title
@@ -220,7 +226,7 @@ draw = () => {
   // Levels
   else if(state == 2 && !white){
     c.drawImage(window["rules" + level + (easy ? "e" : "")], W/2 - 250, H/2 - 260);
-    if(level != 9) c.drawImage(window["gas" + anim], W/2 - 250, H/2 - 80);
+    if(level != 9) c.drawImage(window["gas" + anim + gastype], W/2 - 250, H/2 - 80);
     if(level == 9) c.drawImage(gas9, W/2 - 250, H/2 - 80);
     if(fail){
       c.drawImage(fails, 10, H - 45);
